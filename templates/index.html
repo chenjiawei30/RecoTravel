@@ -126,9 +126,9 @@
             </div>
         </div>
 
-        <div class="owl-carousel owl-items-5 latest-works" id="yifei_container"> </div>
+        <div class="owl-carousel owl-items-5 latest-works" id="home_site_show_container"> </div>
         <script>
-            var yifei_data = [
+            var home_site_show_data = [
                 {
                     "title": "故宫",
                     "image": "static/example/gallery/故宫.jpg",
@@ -167,8 +167,8 @@
                 },
             ];
 
-            var yifei_container = document.getElementById('yifei_container');
-            yifei_data.forEach(function (item) {
+            var home_site_show_container = document.getElementById('home_site_show_container');
+            home_site_show_data.forEach(function (item) {
                 var item_div = document.createElement('div');
                 item_div.className = 'owl-carousel-item portfolio_item_image';
                 item_div.innerHTML = `
@@ -186,7 +186,7 @@
                         </div>
                     </div>
                 `;
-                yifei_container.appendChild(item_div);
+                home_site_show_container.appendChild(item_div);
             });
         </script>
 
