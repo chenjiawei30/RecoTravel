@@ -1,0 +1,3 @@
+jieba
+django
+scikit-learn
