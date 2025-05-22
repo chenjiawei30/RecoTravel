@@ -16,6 +16,9 @@ def route_show(request):
     return render(request,"route.html")
 
 
+def route_design(request):
+    return render(request,"route_design.html")
+
 
 def about(request):
     return render(request,"about.html")

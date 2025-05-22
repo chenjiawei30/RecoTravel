@@ -26,8 +26,13 @@
     <header id="header" class="light_section">
         <div class="container">
             <div class="row">
-                <a class="navbar-brand" href="#top"><img src="static/example/logo.png" alt=""></a>
-                <div class="col-sm-12 mainmenu_wrap">
+            	<div class="col-sm-6" >
+                    <div class="logo">
+                        <img src="static/example/logo-.png" alt="" style="height: 80px;"></a>
+                    </div>
+                </div>
+            	<!-- <a class="navbar-brand" href="#top"><img src="static/example/logo.png" alt=""></a> -->
+                <div class="col-sm-6 mainmenu_wrap">
                     <div class="main-menu-icon visible-xs">
                         <span></span>
                         <span></span>
@@ -37,13 +42,13 @@
                         <ul id="mainmenu" class="menu sf-menu responsive-menu superfish">
                             <li class="">
                                 <a href="./travelhome">首页</a>
-                            </li>
-                            <li class="">
-                                <a href="./about.html">关于</a>
-                            </li>
+                            </li>      
                             <li class="active">
-                                <a href="./gallery.html">展示</a>
-                             </li>  
+                                <a href="./gallery.html">景点搜索</a>
+                            </li>  
+                            <li class="">
+                                <a href="./route_design.html">景点路线规划</a>
+                            </li>
                             <li class="dropdown">                                
                                 <a href="./blog.html">博客</a>
                                 <ul class="dropdown-menu">                                    
@@ -56,8 +61,11 @@
                                 </ul>
                             </li>
                             <li class="">
+                                <a href="./about.html">关于</a>
+                            </li>   
+                            <!-- <li class="">
                                 <a href="./contact.html">联系</a>
-                            </li>
+                            </li> -->
                         </ul>
                     </nav>
                 </div>
@@ -70,227 +78,141 @@
             <div class="row">
                 <div class="col-sm-12 text-center">
                     <h2 class="block-header">北京著名旅游景点</h2>
-                    <p>寻找你喜欢的景点</p>
+                    寻找你喜欢的景点
                 </div>
             </div>
+            <div class="row" style="margin-bottom: 20px; margin-top: 20px;">
+                <div class="col-sm-6 col-sm-offset-3">
+                    <div class="input-group">
+                        <input type="text" id="gallery-search" class="form-control" placeholder="搜索景点名称或描述...">
+                        <span class="input-group-btn">
+                            <button id="gallery-search-btn" class="btn btn-primary" type="button">搜索</button>
+                            <button id="gallery-reset-btn" class="btn btn-default" type="button">重置</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var searchInput = document.getElementById('gallery-search');
+                    var searchBtn = document.getElementById('gallery-search-btn');
+                    var resetBtn = document.getElementById('gallery-reset-btn');
+                    var galleryGrid = document.getElementById('gallery-grid');
+                    function filterGallery() {
+                        var keyword = searchInput.value.trim().toLowerCase();
+                        var items = galleryGrid.getElementsByTagName('li');
+                        Array.from(items).forEach(function(li) {
+                            var title = li.querySelector('h3').textContent.toLowerCase();
+                            var desc = li.querySelector('.description').textContent.toLowerCase();
+                            if (title.includes(keyword) || desc.includes(keyword)) {
+                                li.style.display = '';
+                            } else {
+                                li.style.display = 'none';
+                            }
+                        });
+                    }
+                    function resetGallery() {
+                        searchInput.value = '';
+                        var items = galleryGrid.getElementsByTagName('li');
+                        Array.from(items).forEach(function(li) {
+                            li.style.display = '';
+                        });
+                    }
+                    searchBtn.addEventListener('click', filterGallery);
+                    searchInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            filterGallery();
+                        }
+                    });
+                    resetBtn.addEventListener('click', resetGallery);
+                });
+            </script>
 
             <div class="row">
-                <ul id="gallery-grid" class="gallery-grid col-sm-12">
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/故宫.jpg" data-title="Project Name 1" data-description="data-description">
-                            <img src="static/example/gallery/故宫.jpg" alt=""/>
-                        </a>
-                        <h3>故宫</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>故宫</h3>
-                                <p class="description">
-                                    北京故宫是中国明清两代的皇家宫殿，旧称紫禁城，位于北京中轴线的中心。北京故宫以三大殿为中心，占地面积约72万平方米，建筑面积约15万平方米，有大小宫殿七十多座，房屋九千余间。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                                <a href="#" data-largesrc="example/gallery/故宫.jpg" data-title="Project Name 1" data-description="data-description">
-                                    <img src="static/example/gallery/故宫.jpg" alt="" class="img-left"/>
-                                </a>
-                                
+                <ul id="gallery-grid" class="gallery-grid col-sm-12"></ul>
+                <script>
+                    var gallery_data = [
+                        {
+                            "src": "static/example/gallery/故宫.jpg",
+                            "title": "故宫",
+                            "description": "北京故宫是中国明清两代的皇家宫殿，旧称紫禁城，位于北京中轴线的中心。北京故宫以三大殿为中心，占地面积约72万平方米，建筑面积约15万平方米，有大小宫殿七十多座，房屋九千余间。"
+                        },
+                        {
+                            "src": "static/example/gallery/颐和园.jpg",
+                            "title": "颐和园",
+                            "description": "颐和园，中国清朝时期皇家园林，前身为清漪园，坐落在北京西郊，距城区15公里，占地约290公顷（2.9平方千米），与圆明园毗邻。它是以昆明湖、万寿山为基址，以杭州西湖为蓝本，汲取江南园林的设计手法而建成的一座大型山水园林，也是保存最完整的一座皇家行宫御苑，被誉为“皇家园林博物馆”。"
+                        },
+                        {
+                            "src": "static/example/gallery/八达岭长城.jpg",
+                            "title": "八达岭长城",
+                            "description": "八达岭长城，位于北京市延庆区军都山关沟古道北口。是中国古代伟大的防御工程万里长城的重要组成部分，是明长城的一个隘口。八达岭长城为居庸关的重要前哨，古称“居庸之险不在关而在八达岭”。"
+                        },
+                        {
+                            "src": "static/example/gallery/天坛.jpg",
+                            "title": "天坛",
+                            "description": "天坛公园在北京市南部，东城区永定门内大街东侧。占地约273万平方米。天坛始建于明永乐十八年（1420年），清乾隆、光绪时曾重修改建。现为世界文化遗产，全国重点文物保护单位，国家AAAAA级旅游景区，全国文明风景旅游区示范点。"
+                        },
+                        {
+                            "src": "static/example/gallery/恭王府.jpg",
+                            "title": "恭王府",
+                            "description": "恭王府（Prince Kung's Mansion），位于北京市西城区柳荫街，为全国重点文物保护单位，中国国家一级博物馆，国家AAAAA级旅游景区，是清代规模最大的一座王府建筑群，曾先后作为清乾隆时期权臣和珅、清嘉庆时期庆僖亲王永璘的宅邸，咸丰元年（1851年）清廷赐封此宅邸于恭亲王奕訢，恭王府的名称也因此得来。"
+                        },
+                        {
+                            "src": "static/example/gallery/北海公园.jpg",
+                            "title": "北海公园",
+                            "description": "北海公园（Beihai Park）位于北京市中心区，东邻景山，南濒中南海，北连什刹海，属于中国古代皇家园林。全园以北海为中心，全园占地68.2万平方米（其中水面积38.9万平方米，陆地面积29.3万平方米）。"
+                        },
+                        {
+                            "src": "static/example/gallery/景山公园.jpg",
+                            "title": "景山公园",
+                            "description": "景山公园位于北京市西城区景山前街，坐落在明清北京城的中轴线上，西临北海，南与故宫神武门隔街相望，是明、清两代的御苑。公园中心的景山为堆土而成，曾是全城的制高点。"
+                        },
+                        {
+                            "src": "static/example/gallery/慕田峪长城.jpg",
+                            "title": "慕田峪长城",
+                            "description": "北京的慕田峪长城位于北京市怀柔区境内，距北京城区73公里。其历史悠久，文化灿烂，在中外享有“万里长城，慕田峪独秀”的美誉。景区内山峦叠嶂，植被覆盖率达90%以上。"
+                        },
+                        {
+                            "src": "static/example/gallery/什刹海.jpg",
+                            "title": "什刹海",
+                            "description": "什刹海，是北京市历史文化旅游风景区、北京市历史文化保护区。位于市中心城区西城区，毗邻北京城中轴线。水域面积33.6万平方米，与中南海水域一脉相连，是北京内城唯一一处具有开阔水面的开放型景区，也是北京城内面积最大、风貌保存最完整的一片历史街区。"
+                        },
+                        {
+                            "src": "static/example/gallery/南锣鼓巷.jpg",
+                            "title": "南锣鼓巷",
+                            "description": "南锣鼓巷是一条胡同，位于北京中轴线东侧的交道口地区，北起鼓楼东大街，南至平安大街，宽8米，全长787米，于元大都同期建成。是北京最古老的街区之一，已有740多年的历史。"
+                        },
+                        {
+                            "src": "static/example/gallery/王府井.jpg",
+                            "title": "王府井",
+                            "description": "故王府井大街（Wangfujing Street）位于中国北京市东城区，街道全长1818米，从南至北共分为4段，东长安街至东单三条段，长度为280米；东单三条至金鱼胡同段，长度为548米；金鱼胡同至灯市口大街段，长度为344米；灯市口大街至五四大街段，长度为646米。其中，东单三条至灯市口大街段是北京知名的商业步行街“王府井步行街”。"
+                        },
+                        {
+                            "src": "static/example/gallery/故宫.jpg",
+                            "title": "故宫",
+                            "description": "北京故宫是中国明清两代的皇家宫殿，旧称紫禁城，位于北京中轴线的中心。北京故宫以三大殿为中心，占地面积约72万平方米，建筑面积约15万平方米，有大小宫殿七十多座，房屋九千余间。"
+                        },
+                    ];
+                    var container = document.getElementById('gallery-grid');
+                    gallery_data.forEach(function(item) {
+                        var li = document.createElement('li');
+                        li.innerHTML = `
+                            <a href="#" data-largesrc="${item.src}" data-title="${item.title}" data-description="${item.description}">
+                                <img src="${item.src}" alt="" style="width: 350px; height: 200px;"/>
+                            </a>
+                            <h3>${item.title}</h3>
+                            <div class="portfolio_description">
+                                <div class="block">
+                                    <h3>${item.title}</h3>
+                                    <p class="description">${item.description}</p>
+                                </div>
                             </div>
-                        </div>
-                    </li>
-
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/颐和园.jpg" data-title="Project Name 2" data-description="data-description">
-                            <img src="static/example/gallery/颐和园.jpg" alt=""/>
-                        </a>
-                        <h3>颐和园</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>颐和园</h3>
-                                <p class="description">
-                                    颐和园，中国清朝时期皇家园林，前身为清漪园，坐落在北京西郊，距城区15公里，占地约290公顷（2.9平方千米），与圆明园毗邻。它是以昆明湖、万寿山为基址，以杭州西湖为蓝本，汲取江南园林的设计手法而建成的一座大型山水园林，也是保存最完整的一座皇家行宫御苑，被誉为“皇家园林博物馆”。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/故宫.jpg" data-title="Project Name 1" data-description="data-description">
-                            <img src="static/example/gallery/故宫.jpg" alt=""/>
-                        </a>
-                        <h3>故宫</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>故宫</h3>
-                                <p class="description">
-                                    北京故宫是中国明清两代的皇家宫殿，旧称紫禁城，位于北京中轴线的中心。北京故宫以三大殿为中心，占地面积约72万平方米，建筑面积约15万平方米，有大小宫殿七十多座，房屋九千余间。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/八达岭长城.jpg" data-title="Project Name 3" data-description="data-description">
-                            <img src="static/example/gallery/八达岭长城.jpg" alt=""/>
-                        </a>
-                        <h3>八达岭长城</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>八达岭长城</h3>
-                                <p class="description">
-                                    八达岭长城，位于北京市延庆区军都山关沟古道北口。是中国古代伟大的防御工程万里长城的重要组成部分，是明长城的一个隘口。八达岭长城为居庸关的重要前哨，古称“居庸之险不在关而在八达岭”。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/天坛.jpg" data-title="Project Name 4" data-description="data-description">
-                            <img src="static/example/gallery/天坛.jpg" alt=""/>
-                        </a>
-                        <h3>天坛</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>天坛</h3>
-                                <p class="description">
-                                    天坛公园在北京市南部，东城区永定门内大街东侧。占地约273万平方米。天坛始建于明永乐十八年（1420年），清乾隆、光绪时曾重修改建。现为世界文化遗产，全国重点文物保护单位，国家AAAAA级旅游景区，全国文明风景旅游区示范点。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/恭王府.jpg" data-title="Project Name 5" data-description="data-description">
-                            <img src="static/example/gallery/恭王府.jpg" alt=""/>
-                        </a>
-                        <h3>恭王府</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>恭王府</h3>
-                                <p class="description">
-                                    恭王府（Prince Kung's Mansion），位于北京市西城区柳荫街，为全国重点文物保护单位，中国国家一级博物馆，国家AAAAA级旅游景区，是清代规模最大的一座王府建筑群，曾先后作为清乾隆时期权臣和珅、清嘉庆时期庆僖亲王永璘的宅邸，咸丰元年（1851年）清廷赐封此宅邸于恭亲王奕訢，恭王府的名称也因此得来。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/北海公园.jpg" data-title="Project Name 6" data-description="data-description">
-                            <img src="static/example/gallery/北海公园.jpg" alt=""/>
-                        </a>
-                        <h3>北海公园</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>北海公园</h3>
-                                <p class="description">
-                                    北海公园（Beihai Park）位于北京市中心区，东邻景山，南濒中南海，北连什刹海 [1]  ，属于中国古代皇家园林。全园以北海为中心，全园占地68.2万平方米（其中水面积38.9万平方米，陆地面积29.3万平方米） [29]  。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/景山公园.jpg" data-title="Project Name 7" data-description="data-description">
-                            <img src="static/example/gallery/景山公园.jpg" alt=""/>
-                        </a>
-                        <h3>景山公园</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>景山公园</h3>
-                                <p class="description">
-                                    景山公园位于北京市西城区景山前街，坐落在明清北京城的中轴线上，西临北海，南与故宫神武门隔街相望，是明、清两代的御苑。公园中心的景山为堆土而成，曾是全城的制高点。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/慕田峪长城.jpg" data-title="Project Name 8" data-description="data-description">
-                            <img src="static/example/gallery/慕田峪长城.jpg" alt=""/>
-                        </a>
-                        <h3>慕田峪厂长城</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>慕田峪长城</h3>
-                                <p class="description">
-                                    北京的慕田峪长城 [1]  位于北京市怀柔区境内，距北京城区73公里。其历史悠久，文化灿烂，在中外享有“万里长城，慕田峪独秀”的美誉。景区内山峦叠嶂，植被覆盖率达90%以上。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/什刹海.jpg" data-title="Project Name 9" data-description="data-description">
-                            <img src="static/example/gallery/什刹海.jpg" alt=""/>
-                        </a>
-                        <h3>什刹海</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>什刹海</h3>
-                                <p class="description">
-                                    什刹海，是北京市历史文化旅游风景区、北京市历史文化保护区。位于市中心城区西城区，毗邻北京城中轴线。水域面积33.6万平方米，与中南海水域一脉相连，是北京内城唯一一处具有开阔水面的开放型景区，也是北京城内面积最大、风貌保存最完整的一片历史街区
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/南锣鼓巷.jpg" data-title="Project Name 10" data-description="data-description">
-                            <img src="static/example/gallery/南锣鼓巷.jpg" alt=""/>
-                        </a>
-                        <h3>南锣鼓巷</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>南锣鼓巷</h3>
-                                <p class="description">
-                                   南锣鼓巷是一条胡同，位于北京中轴线东侧的交道口地区，北起鼓楼东大街，南至平安大街，宽8米，全长787米，于元大都同期建成。是北京最古老的街区之一，已有740多年的历史。
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-
-                    <li>
-                        <a href="#" data-largesrc="example/gallery/王府井.jpg" data-title="Project Name 11" data-description="data-description">
-                            <img src="static/example/gallery/王府井.jpg" alt=""/>
-                        </a>
-                        <h3>王府井</h3>
-                        <div class="portfolio_description">
-                            <div class="block">
-                                <h3>王府井</h3>
-                                <p class="description">
-                                    故王府井大街（Wangfujing Street）位于中国北京市东城区，街道全长1818米，从南至北共分为4段，东长安街至东单三条段，长度为280米；东单三条至金鱼胡同段，长度为548米；金鱼胡同至灯市口大街段，长度为344米；灯市口大街至五四大街段，长度为646米。其中，东单三条至灯市口大街段是北京知名的商业步行街“王府井步行街”
-                                </p>
-
-                                <p class="more"><a href="#" class="theme_btn">了解更多</a></p>
-                            </div>
-                        </div>
-                    </li>
-
-                </ul>
+                        `;
+                        container.appendChild(li);
+                    });
+                </script>
+                
+                
             </div>
             <div class="row">
                 <div class="col-sm-12 text-center">

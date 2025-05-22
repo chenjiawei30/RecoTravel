@@ -349,7 +349,7 @@ var Grid = (function() {
 			this.$details = $( '<div class="gallery-details"></div>' ).append( this.$description );
 			//console.log(this);
 			this.$loading = $( '<div class="gallery-loading"></div>' );
-			this.$fullimage = $( '<div class="gallery-fullimg"></div>' ).append( this.$loading );
+			this.$fullimage = $( '<div class="gallery-fullimg"></div>' )
 			this.$closePreview = $( '<span class="gallery-close"></span>' );
 			this.$previewInner = $( '<div class="gallery-expander-inner"></div>' ).append( this.$closePreview, this.$fullimage, this.$details );
 			this.$previewEl = $( '<div class="gallery-expander"></div>' ).append( this.$previewInner );
@@ -404,11 +404,13 @@ var Grid = (function() {
 			// preload large image and add it to the preview
 			// for smaller screens we don´t display the large image (the media query will hide the fullimage wrapper)
 			if( self.$fullimage.is( ':visible' ) ) {
-				this.$loading.show();
+				// this.$loading.show();\
 				$( '<img/>' ).load( function() {
+					debugger
+
 					var $img = $( this );
 					if( $img.attr( 'src' ) === self.$item.children('a').data( 'largesrc' ) ) {
-						self.$loading.hide();
+						// self.$loading.hide();
 						self.$fullimage.find( 'img' ).remove();
 						self.$largeImg = $img.fadeIn( 350 );
 						self.$fullimage.append( self.$largeImg );

@@ -632,8 +632,8 @@ z-index: 1;
 }
 
 
-#team {background: url("../example/parallax/team_bg.jpg");}
-.banner-box{ background: url("../example/parallax/banner-box.jpg");}
+#team {background: url("../home_route/background.jpg");}
+.banner-box{ background: url("../home_route/background.jpg");}
 
 .dark_section.bg_image, .darkgrey_section.bg_image{
 background-image: url(../img/bg_color_section.png);
