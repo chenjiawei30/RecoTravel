@@ -76,3 +76,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # 项目中存放静态文件的目录
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # 用于 collectstatic 的目录
+
+# 登录相关配置
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/travelhome'
+LOGOUT_REDIRECT_URL = '/login/'
