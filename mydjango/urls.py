@@ -17,6 +17,7 @@ urlpatterns = [
     path('route.html', view.route_show),
     path('reco', view.reco),
     path('route_design.html', view.route_design),
+    path('api/gallery/', view.gallery, name='gallery'),
     path('login/', view.login_view, name='login'),
     path('logout/', view.logout_view, name='logout'),
     path('register/', view.register_view, name='register'),
