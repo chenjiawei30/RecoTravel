@@ -9,7 +9,7 @@ from django.http import JsonResponse, StreamingHttpResponse
 import requests
 import os
 from django.conf import settings
-
+from .sam.seasonal_rec import seasonal_recommend
 
 def travelHome(request):
     return render(request,"index.html")
@@ -53,6 +53,15 @@ def blog_single(request):
 def contact(request):
     return render(request,"contact.html")
 
+def seasonal_spot(request):
+    num = int(request.GET.get("num", 6))
+    season, names, addrs, _ = seasonal_recommend(num)   
+    ctx = {
+        "season": season,                 # spring / summer / autumn / winter
+        "rec_spots": list(zip(names, addrs)),   # [(name, addr), ...]
+    }
+
+    return render(request, "seasonal.html", ctx)
 
 def reco(request):
     if request.method == "POST":
