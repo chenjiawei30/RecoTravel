@@ -11,6 +11,7 @@ import os
 from django.conf import settings
 from dotenv import load_dotenv
 from django.views.decorators.csrf import csrf_exempt
+from .sam.seasonal_rec import seasonal_recommend
 
 # 加载.env文件
 load_dotenv()
@@ -54,6 +55,15 @@ def blog_single(request):
 def contact(request):
     return render(request,"contact.html")
 
+def seasonal_spot(request):
+    num = int(request.GET.get("num", 6))
+    season, names, addrs, _ = seasonal_recommend(num)   
+    ctx = {
+        "season": season,                 # spring / summer / autumn / winter
+        "rec_spots": list(zip(names, addrs)),   # [(name, addr), ...]
+    }
+
+    return render(request, "seasonal.html", ctx)
 
 def reco(request):
     if request.method == "POST":
