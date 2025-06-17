@@ -17,6 +17,10 @@ urlpatterns = [
     path('route.html', view.route_show),
     path('reco', view.reco),
     path('route_design.html', view.route_design),
+    path('login/', view.login_view, name='login'),
+    path('logout/', view.logout_view, name='logout'),
+    path('register/', view.register_view, name='register'),
+    path('chat/', view.chat_view, name='chat'),
 ]
 
 

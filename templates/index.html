@@ -29,20 +29,20 @@
     <header id="header" class="light_section">
         <div class="container">
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <div class="logo">
                         <img src="static/example/logo-.png" alt="" style="height: 80px;"></a>
                     </div>
                 </div>
                 <!-- <a class="navbar-brand" href="#top"><img src="static/example/logo-.png" alt=""></a> -->
-                <div class="col-sm-6 mainmenu_wrap">
+                <div class="col-sm-8 mainmenu_wrap">
                     <div class="main-menu-icon visible-xs">
                         <span></span>
                         <span></span>
                         <span></span>
                     </div>
                     <nav>
-                        <ul id="mainmenu" class="menu sf-menu responsive-menu superfish">
+                        <ul id="mainmenu" class="menu sf-menu responsive-menu superfish" style="width: 100%;">
                             <li class="active">
                                 <a href="./travelhome">首页</a>
                             </li>
@@ -66,6 +66,20 @@
                             <li class="">
                                 <a href="./about.html">关于</a>
                             </li>
+                            {% if user.is_authenticated %}
+                            <li class="dropdown">
+                                <a href="#" style="color: #333;">欢迎您，{{ user.username }}</a>
+                                <ul class="dropdown-menu">
+                                    <li class="">
+                                        <a href="{% url 'logout' %}">退出登录</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            {% else %}
+                            <li class="">
+                                <a href="{% url 'login' %}" style="color: #333;">点击此处登录</a>
+                            </li>
+                            {% endif %}
                             <!-- <li class="">
                                 <a href="./contact.html">联系</a>
                             </li> -->
@@ -211,7 +225,8 @@
                                 <article class="post format-small-image">
                                     <div class="row">
                                         <div class="entry-thumbnail col-sm-5">
-                                            <img alt="" src="static/home_route/天安门.jpg" style="height: 230px; width: 700px;">
+                                            <img alt="" src="static/home_route/天安门.jpg"
+                                                style="height: 230px; width: 700px;">
                                         </div>
                                         <div class="col-sm-7">
                                             <header class="entry-header">
@@ -238,7 +253,8 @@
                                 <article class="post format-small-image">
                                     <div class="row">
                                         <div class="entry-thumbnail col-sm-5">
-                                            <img alt="" src="static/home_route/太庙.jpeg" style="height: 230px; width: 700px;">
+                                            <img alt="" src="static/home_route/太庙.jpeg"
+                                                style="height: 230px; width: 700px;">
                                         </div>
                                         <div class="col-sm-7">
                                             <header class="entry-header">
@@ -265,12 +281,13 @@
                                 <article class="post format-small-image">
                                     <div class="row">
                                         <div class="entry-thumbnail col-sm-5">
-                                            <img alt="" src="static/home_route/国家自然博物馆.jpg" style="height: 230px; width: 700px;">
+                                            <img alt="" src="static/home_route/国家自然博物馆.jpg"
+                                                style="height: 230px; width: 700px;">
                                         </div>
                                         <div class="col-sm-7">
                                             <header class="entry-header">
                                                 <h3 class="entry-title">
-                                                    <a href="./blog-single.html" rel="bookmark">“博物馆之城”中轴线感知游</a>
+                                                    <a href="./blog-single.html" rel="bookmark">"博物馆之城"中轴线感知游</a>
                                                 </h3>
                                                 <div class="entry-meta">
                                                     北京市规划展览馆—中国铁道博物馆正阳门馆—国家自然博物馆—北京古代建筑博物馆
@@ -370,7 +387,7 @@
     <script src="static/js/plugins.js"></script>
     <script src="static/js/main.js"></script>
 
-
+    {% include 'chat.html' %}
 </body>
 
 </html>
