@@ -239,6 +239,12 @@
             <!-- 地图区 -->
             <div class="col-lg-8">
                 <div class="map-container" id="mapContainer"></div>
+                <div class="route-type-btn">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary btn-sm active route-type" data-type="driving">驾车</button>
+                        <button type="button" class="btn btn-primary-outline btn-sm route-type" data-type="walking">步行</button>
+                    </div>
+                </div>
             </div>
             
         </div>
@@ -257,7 +263,6 @@
                             <button class="nav-link" id="route-tab" data-bs-toggle="tab" data-bs-target="#routeTab" type="button" role="tab">
                                 <i class="bi bi-signpost"></i> 路线详情
                             </button>
-                            <div id="panel"></div>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#statsTab" type="button" role="tab">
@@ -268,11 +273,18 @@
                     </ul>
                     
                     <div class="tab-content" id="resultsTabContent">
+                        <!-- 地点列表选项卡 -->
+                        <div class="tab-pane active" id="placesTab" role="tabpanel">
+                            <div id="placesDetails" class="list-group">
+                                <p class="text-muted">地点添加后将显示在这里</p>
+                            </div>
+                        </div>
                         <!-- 路线详情选项卡 -->
-                        <div class="tab-pane fade show active" id="routeTab" role="tabpanel">
+                        <div class="tab-pane fade show" id="routeTab" role="tabpanel">
                             <div id="routeDetails">
                                 <p class="text-muted">路线规划完成后将显示详细信息</p>
                             </div>
+                            <div id="panel"></div>
                         </div>
                         
                         <!-- 路线统计选项卡 -->
@@ -311,13 +323,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 地点列表选项卡 -->
-                        <div class="tab-pane fade" id="placesTab" role="tabpanel">
-                            <div id="placesDetails" class="list-group">
-                                <p class="text-muted">地点添加后将显示在这里</p>
                             </div>
                         </div>
                     </div>
@@ -470,6 +475,32 @@
             });
             document.getElementById('optimizeRouteBtn').addEventListener('click', planRoute);
             document.getElementById('clearRouteBtn').addEventListener('click', clearRoute);
+
+            // 绑定路线类型切换按钮
+            document.querySelectorAll('.route-type').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的 active 类
+                    document.querySelectorAll('.route-type').forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.remove('btn-primary'); // 移除选中的填充色
+                        b.classList.add('btn-outline-primary'); // 添加未选中的边框色
+                    });
+
+                    // 为当前点击的按钮添加 active 类
+                    this.classList.add('active');
+                    this.classList.remove('btn-outline-primary'); // 移除未选中的边框色
+                    this.classList.add('btn-primary'); // 添加选中的填充色
+
+                    // 更新当前的路线类型
+                    currentRouteType = this.dataset.type;
+
+                    // 如果有至少两个地点，则规划路线
+                    if (places.length >= 2) {
+                        planRoute();
+                    }
+                });
+            });
+
         }
 
         function addPlace() {
@@ -852,14 +883,6 @@
                 strokeWeight: 6,
                 map: map
             });
-
-            const routeDetails = document.getElementById('routeDetails');
-            routeDetails.innerHTML = route.steps.map(step => `
-                <div class="route-step">
-                    <strong>${step.instruction}</strong>
-                    <div>${step.distance}米 / ${Math.floor(step.time/60)}分钟</div>
-                </div>
-            `).join('');
 
             map.setFitView([routeLine]);
         }
