@@ -159,24 +159,29 @@
     <!-- 导航栏 -->
     <header class="header">
         <div class="container">
-            <nav class="navbar navbar-expand-lg navbar-light">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="./travelhome">
-                        <img src="static/example/logo-.png" alt="Logo" height="60">
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="./travelhome">首页</a>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="logo">
+                        <img src="static/example/logo-.png" alt="" style="height: 80px;"></a>
+                    </div>
+                </div>
+                <!-- <a class="navbar-brand" href="#top"><img src="static/example/logo.png" alt=""></a> -->
+                <div class="col-sm-8 mainmenu_wrap">
+                    <div class="main-menu-icon visible-xs">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <nav>
+                        <ul id="mainmenu" class="menu sf-menu responsive-menu superfish">
+                            <li class="">
+                                <a href="./travelhome">首页</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="./gallery.html">景点搜索</a>
+                            <li class="">
+                                <a href="./gallery.html">景点搜索</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link active" href="./route_design.html">景点路线规划</a>
+                            <li class="active">
+                                <a href="./route_design.html">景点路线规划</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -185,11 +190,40 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="./blog.html">博客</a></li>
                                     <li><a class="dropdown-item" href="./blog-single.html">博客文章</a></li>
+                            <li class="dropdown">
+                                <a href="./blog.html">博客</a>
+                                <ul class="dropdown-menu">
+                                    <li class="">
+                                        <a href="./blog.html">博客</a>
+                                    </li>
+                                    <li class="">
+                                        <a href="./blog-single.html">博客文章</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="./about.html">关于</a>
                             </li>
+                            <li class="">
+                                <a href="./about.html">关于</a>
+                            </li>
+                            {% if user.is_authenticated %}
+                            <li class="dropdown">
+                                <a href="#" style="color: #333;">欢迎您，{{ user.username }}</a>
+                                <ul class="dropdown-menu">
+                                    <li class="">
+                                        <a href="{% url 'logout' %}">退出登录</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            {% else %}
+                            <li class="">
+                                <a href="{% url 'login' %}" style="color: #333;">点击此处登录</a>
+                            </li>
+                            {% endif %}
+                            <!-- <li class="">
+                                <a href="./contact.html">联系</a>
+                            </li> -->
                         </ul>
                     </div>
                 </div>
@@ -198,16 +232,16 @@
     </header>
 
     <!-- 主要内容区 -->
-    <div class="container">
+  <div class="container">
         <div class="row mb-4">
             <div class="col-12">
                 <h1 class="text-center">景点路线规划</h1>
                 <p class="text-center text-muted">输入您想游览的地点，我们将为您规划最佳路线</p>
-            </div>
-        </div>
+      </div>
+    </div>
 
         <!-- 第一行：搜索区和地图 -->
-        <div class="row">
+    <div class="row">
             <!-- 搜索区 -->
             <div class="col-lg-4">
                 <div class="search-panel">
@@ -250,7 +284,7 @@
         </div>
 
         <!-- 第二行：结果展示区 -->
-        <div class="row">
+            <div class="row">
             <div class="col-12">
                 <div class="results-container">
                     <ul class="nav nav-tabs" id="resultsTab" role="tablist">
@@ -354,6 +388,9 @@
                     <a href="#" class="text-decoration-none me-2"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="text-decoration-none me-2"><i class="bi bi-instagram"></i></a>
                     <a href="#" class="text-decoration-none"><i class="bi bi-linkedin"></i></a>
+
+                <div class="col-sm-12 text-center">
+                    &copy; UCAS 2025 - Travel Planning
                 </div>
             </div>
         </div>
@@ -1003,8 +1040,8 @@
         }
 
         // 坐标比较工具函数
-        function isCoordinateEqual(coord1, coord2, tolerance = 0.0002) {
-            console.log(Math.abs(coord1[0] - coord2['lng']), Math.abs(coord1[1] - coord2['lat']));
+        function isCoordinateEqual(coord1, coord2, tolerance = 0.0001) {
+            dez(Math.abs(coord1[0] - coord2['lng']), Math.abs(coord1[1] - coord2['lat']));
             return Math.abs(coord1[0] - coord2['lng']) < tolerance 
                 && Math.abs(coord1[1] - coord2['lat']) < tolerance;
         }

@@ -1,4 +1,94 @@
-# Beijing Tourist Recommend
+# RecoTravel - 北京历史文化景点推荐系统
+
+## 项目简介
+RecoTravel是一个基于Django开发的北京历史文化景点推荐系统，旨在为用户提供个性化的旅游路线规划和景点推荐服务。
+
+## 功能特点
+1. 用户系统
+   - 用户注册：支持邮箱注册
+   - 用户登录：支持账号密码登录
+   - 用户退出：支持安全退出登录
+
+2. 景点推荐
+   - 景点搜索：支持景点信息查询
+   - 景点展示：展示景点详细信息
+   - 个性化推荐：基于用户选择的景点进行路线推荐
+
+3. 路线规划
+   - 路线设计：支持自定义旅游路线
+   - 路线展示：展示推荐路线详情
+   - 路线优化：根据景点位置优化路线
+
+## 技术栈
+- 后端：Django
+- 数据库：SQLite
+- 前端：HTML, CSS, JavaScript, Bootstrap
+- 其他：jQuery, Font Awesome
+
+## 安装说明
+1. 克隆项目
+```bash
+git clone https://github.com/chenjiawei30/RecoTravel.git
+cd RecoTravel
+```
+
+2. 创建虚拟环境
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# 或
+venv\Scripts\activate  # Windows
+```
+
+3. 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+4. 初始化数据库
+```bash
+python manage.py migrate
+```
+
+5. 创建超级用户（可选）
+```bash
+python manage.py createsuperuser
+```
+
+6. 运行开发服务器
+```bash
+python manage.py runserver
+```
+
+## 使用说明
+1. 用户注册
+   - 填写用户名、邮箱和密码
+   - 点击注册按钮完成注册
+
+2. 用户登录
+   - 输入用户名和密码
+   - 点击登录按钮完成登录
+
+3. 景点推荐
+   - 在首页浏览推荐景点
+   - 点击景点查看详细信息
+   - 选择感兴趣的景点进行路线规划
+
+4. 路线规划
+   - 选择想要游览的景点
+   - 系统自动生成推荐路线
+   - 查看路线详情和景点信息
+
+## 项目结构
+```
+RecoTravel/
+├── mydjango/          # Django项目配置
+├── templates/         # HTML模板
+├── static/           # 静态文件
+├── staticfiles/      # 收集的静态文件
+├── manage.py         # Django管理脚本
+└── requirements.txt  # 项目依赖
+```
 
 北京市旅游路线推荐系统项目
 
@@ -38,7 +128,7 @@
 | 操作系统  | Ubuntu 22.04               |
 | 网站框架  | Django 2.1.2               |
 | 大数据平台 | Hadoop（HDFS）、Spark         |
-| 编程语言  | Python 3.8                 |
+| 编程语言  | Python 3.10                 |
 | 依赖库   | pyspark、numpy、scikit-learn |
 
 

@@ -24,6 +24,13 @@ prettyPhoto 			- In this section are styles for prettyPhoto LightBox plugin.
 */
 
 /*** bootstrap override ***/
+.gallery-grid.row {
+margin-bottom: 30px;
+}
+.gallery-item {
+height: 300px;
+overflow: hidden;
+}
 .nav>li>a {
 border-radius: 0 !important;
 border: none !important;

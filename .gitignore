@@ -40,7 +40,6 @@ dist/
 .ipynb_checkpoints/
 
 .env
-.env.*
 
 *.spec
 
