@@ -128,25 +128,31 @@
         .tab-content {
             padding: 15px 0;
         }
-        /* #panel {
-        position: fixed;
-        background-color: white;
-        max-height: 90%;
-        overflow-y: auto;
-        top: 10px;
-        right: 10px;
-        width: 280px;
+        .route-segments {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
         }
-        #panel .amap-call {
-            background-color: #009cf9;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
+
+        .segment-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        #panel .amap-lib-driving {
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-            overflow: hidden;
-        } */
+
+        .segment-item:hover {
+            background-color: #f0f8ff;
+        }
+
+        .progress {
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background-color: #0d6efd;
+        }
     </style>
 </head>
 <body>
@@ -239,12 +245,6 @@
             <!-- 地图区 -->
             <div class="col-lg-8">
                 <div class="map-container" id="mapContainer"></div>
-                <div class="route-type-btn">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary btn-sm active route-type" data-type="driving">驾车</button>
-                        <button type="button" class="btn btn-primary-outline btn-sm route-type" data-type="walking">步行</button>
-                    </div>
-                </div>
             </div>
             
         </div>
@@ -289,6 +289,7 @@
                         
                         <!-- 路线统计选项卡 -->
                         <div class="tab-pane fade" id="statsTab" role="tabpanel">
+                            <!-- 原有总统计 -->
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="route-stat-card">
@@ -324,7 +325,17 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- 新增：分段距离和时间 -->
+                            <div class="mt-4">
+                                <h6 class="mb-3">路段详情</h6>
+                                <div class="route-segments" id="routeSegments">
+                                    <!-- 这里会动态生成路段信息 -->
+                                    <p class="text-muted">路线规划完成后将显示各路段详情</p>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -888,6 +899,7 @@
         }
 
         function updateRouteStats(route) {
+            // 更新总统计数据
             document.getElementById('totalDistance').textContent = (route.distance / 1000).toFixed(1) + '公里';
             
             let totalTime = route.time;
@@ -906,7 +918,98 @@
             
             document.getElementById('totalDuration').textContent = timeText;
             document.getElementById('totalPlaces').textContent = places.length;
+            
+            // 更新路段详情
+            updateSegmentDetails(route);
         }
+
+        function updateSegmentDetails(route) {
+            const segmentsContainer = document.getElementById('routeSegments');
+            segmentsContainer.innerHTML = '';
+            
+            // 检查数据有效性
+            if (!route || !route.steps || !places || places.length < 2) {
+                segmentsContainer.innerHTML = '<p class="text-muted">路线规划完成后将显示各路段详情</p>';
+                return;
+            }
+            
+            // 1. 提取所有关键点（起点 + 途经点 + 终点）
+            const waypoints = places.map(place => ({
+                name: place.name,
+                location: place.location // 假设格式为[lng, lat]
+            }));
+            
+            // 2. 遍历steps，匹配途经点
+            let currentWaypointIndex = 0;
+            let segmentStartIndex = 0; // 当前路段在steps中的起始索引
+            let accumulatedDistance = 0;
+            
+            // 3. 分组steps到各个路段（起点→途经点1→途经点2→终点）
+            const segments = [];
+            for (let i = 0; i < route.steps.length; i++) {
+                const step = route.steps[i];
+                
+                // 检查当前step的终点是否是下一个途经点
+                if (currentWaypointIndex + 1 < waypoints.length) {
+                    const nextWaypoint = waypoints[currentWaypointIndex + 1];
+                    const stepEnd = [step.end_location.lng, step.end_location.lat];
+                    
+                    // 比较坐标（考虑浮点数误差）
+                    if (isCoordinateEqual(stepEnd, nextWaypoint.location)) {
+                        // 保存当前路段的所有steps
+                        segments.push({
+                            from: waypoints[currentWaypointIndex],
+                            to: nextWaypoint,
+                            steps: route.steps.slice(segmentStartIndex, i + 1),
+                            distance: route.steps
+                                .slice(segmentStartIndex, i + 1)
+                                .reduce((sum, s) => sum + s.distance, 0),
+                            time: route.steps
+                                .slice(segmentStartIndex, i + 1)
+                                .reduce((sum, s) => sum + s.time, 0)
+                        });
+                        
+                        // 移动到下一个途经点
+                        currentWaypointIndex++;
+                        segmentStartIndex = i + 1;
+                    }
+                }
+            }
+            
+            // 4. 渲染所有路段
+            segments.forEach((segment, index) => {
+                const distanceKm = (segment.distance / 1000).toFixed(1);
+                const timeMinutes = Math.floor(segment.time / 60);
+                
+                const segmentElement = document.createElement('div');
+                segmentElement.className = 'segment-item mb-3';
+                segmentElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${segment.from.name} → ${segment.to.name}</h6>
+                            <p class="mb-0 text-muted small">${distanceKm}公里 · ${timeMinutes}分钟</p>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary">第${index + 1}段</span>
+                        </div>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar" role="progressbar" 
+                            style="width: ${(segment.distance / route.distance * 100).toFixed(1)}%"></div>
+                    </div>
+                `;
+                segmentsContainer.appendChild(segmentElement);
+            });
+        }
+
+        // 坐标比较工具函数
+        function isCoordinateEqual(coord1, coord2, tolerance = 0.0002) {
+            console.log(Math.abs(coord1[0] - coord2['lng']), Math.abs(coord1[1] - coord2['lat']));
+            return Math.abs(coord1[0] - coord2['lng']) < tolerance 
+                && Math.abs(coord1[1] - coord2['lat']) < tolerance;
+        }
+
+
 
         function clearRoute() {
             places.forEach(place => {
