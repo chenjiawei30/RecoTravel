@@ -21,7 +21,10 @@ def travelHome(request):
 
 
 def spot_choose(request):
-    return render(request,"spot.html")
+    # 从JSON文件加载景点数据
+    with open('static/spots.json', 'r', encoding='utf-8') as f:
+        spots = json.load(f)
+    return render(request, "spot.html", {'spots': spots})
 
 
 def route_show(request):
