@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 import json
 import urllib.parse
 from .sam.main_pro import *
+from django.http import JsonResponse, StreamingHttpResponse
+import requests
+import os
+from django.conf import settings
 
 
 def travelHome(request):
@@ -126,3 +130,98 @@ def register_view(request):
         return redirect('/')
 
     return render(request, 'register.html')
+
+
+def chat_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '')
+            
+            # 从环境变量获取API密钥
+            api_key = "sk-Q4tevkNHvccXSa70FqtnxYWJV7Nz2t9nyXbBh82b3F04rx2h"
+            if not api_key:
+                print("Error: API key not configured")
+                return JsonResponse({'error': 'API key not configured'}, status=500)
+            
+            api_url = "http://api.cipsup.cn/v1/chat/completions"
+            
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            # 构建系统提示词
+            system_prompt = """你是一个专业的北京旅游助手，可以帮助用户：
+            1. 规划北京旅游路线
+            2. 推荐景点和美食
+            3. 解答旅游相关问题
+            4. 提供交通和住宿建议
+            5. 分享北京历史文化知识
+            
+            请用专业、友好、简洁的语气回答用户的问题。请不要使用markdown格式返回，直接用文本形式返回。"""
+            
+            payload = {
+                "model": "Qwen2.5-72B-Instruct-GPTQ-Int4",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 500,
+                "top_p": 1,
+                "frequency_penalty": 0,
+                "presence_penalty": 0,
+                "stream": True
+            }
+            
+            def generate():
+                try:
+                    print("Sending request to API...")
+                    response = requests.post(api_url, headers=headers, json=payload, stream=True)
+                    print(f"API Response Status: {response.status_code}")
+                    
+                    if response.status_code != 200:
+                        error_msg = f"API request failed with status {response.status_code}"
+                        print(error_msg)
+                        try:
+                            error_detail = response.json()
+                            print(f"Error detail: {error_detail}")
+                        except:
+                            print(f"Raw response: {response.text}")
+                        yield f"data: {json.dumps({'error': error_msg})}\n\n"
+                        return
+                    
+                    for line in response.iter_lines():
+                        if line:
+                            line = line.decode('utf-8')
+                            print(f"Received line: {line}")  # 打印接收到的每一行
+                            if line.startswith('data: '):
+                                data = line[6:]  # 去掉 "data: " 前缀
+                                if data == "[DONE]":
+                                    yield f"data: {json.dumps({'done': True})}\n\n"
+                                else:
+                                    try:
+                                        json_data = json.loads(data)
+                                        if 'choices' in json_data and len(json_data['choices']) > 0:
+                                            delta = json_data['choices'][0].get('delta', {})
+                                            if 'content' in delta:
+                                                yield f"data: {json.dumps({'content': delta['content']})}\n\n"
+                                    except json.JSONDecodeError as e:
+                                        print(f"JSON decode error: {e}")
+                                        print(f"Problematic data: {data}")
+                                        continue
+                except Exception as e:
+                    print(f"Error in generate function: {str(e)}")
+                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            
+            return StreamingHttpResponse(
+                generate(),
+                content_type='text/event-stream'
+            )
+            
+        except Exception as e:
+            print(f"Error in chat_view: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
