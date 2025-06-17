@@ -1,32 +1,163 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html class="no-js"> <!--<![endif]-->
-
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>景点路线规划</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .search-panel {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            height: 100%;
+        }
+        .map-container {
+            height: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .results-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .place-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius:4px;
+        }
+        .place-item:hover {
+            background-color: #e9ecef;
+        }
+        .place-handle {
+            cursor: move;
+            margin-right: 10px;
+            color: #6c757d;
+        }
+        .route-step {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .route-step:last-child {
+            border-bottom: none;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        .autocomplete-active {
+            background-color: #0d6efd !important;
+            color: #ffffff;
+        }
+        .optimizing {
+            position: relative;
+        }
+        .optimizing:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.5);
+            z-index: 10;
+        }
+        .optimize-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            width: 2rem;
+            height: 2rem;
+        }
+        .route-optimized {
+            background-color: rgba(25, 135, 84, 0.1);
+            border-left: 3px solid #198754;
+        }
+        .route-stat-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .place-badge {
+            min-width: 26px;
+        }
+        .tab-content {
+            padding: 15px 0;
+        }
+        .route-segments {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
 
-    <title>关于我们</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+        .segment-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
 
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        .segment-item:hover {
+            background-color: #f0f8ff;
+        }
 
-    <link rel="stylesheet" href="static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/css/animations.css">
-    <link rel="stylesheet" href="static/css/font-awesome.min.css">
-    <link rel="stylesheet" href="static/css/main.css">
-    <script src="static/js/vendor/modernizr-2.6.2.min.js"></script>
-    <!--[if lt IE 9]>
-            <script src="static/js/vendor/respond.min.js"></script>
-        <![endif]-->
+        .progress {
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background-color: #0d6efd;
+        }
+    </style>
 </head>
-
 <body>
-
-    <header id="header" class="light_section">
+    <!-- 导航栏 -->
+    <header class="header">
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
@@ -52,6 +183,13 @@
                             <li class="active">
                                 <a href="./route_design.html">景点路线规划</a>
                             </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                    博客
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="./blog.html">博客</a></li>
+                                    <li><a class="dropdown-item" href="./blog-single.html">博客文章</a></li>
                             <li class="dropdown">
                                 <a href="./blog.html">博客</a>
                                 <ul class="dropdown-menu">
@@ -62,6 +200,9 @@
                                         <a href="./blog-single.html">博客文章</a>
                                     </li>
                                 </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="./about.html">关于</a>
                             </li>
                             <li class="">
                                 <a href="./about.html">关于</a>
@@ -84,230 +225,857 @@
                                 <a href="./contact.html">联系</a>
                             </li> -->
                         </ul>
-                    </nav>
+                    </div>
                 </div>
-            </div>
+            </nav>
         </div>
     </header>
 
+    <!-- 主要内容区 -->
+  <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center">景点路线规划</h1>
+                <p class="text-center text-muted">输入您想游览的地点，我们将为您规划最佳路线</p>
+      </div>
+    </div>
 
-    <section class="" id="title_about">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12">
-                    <h2 class="block-header text-center">为什么选择我们</h2>
-                    <p class="first_indent text-center"> 提供最适合您的北京市旅游体验 </p>
+        <!-- 第一行：搜索区和地图 -->
+    <div class="row">
+            <!-- 搜索区 -->
+            <div class="col-lg-4">
+                <div class="search-panel">
+                    <h4>添加游览地点</h4>
+                    <div class="mb-3">
+                        <div class="autocomplete" style="position: relative;">
+                            <input type="text" id="placeInput" class="form-control" placeholder="输入景点名称或地址">
+                            <div id="autocomplete-list" class="autocomplete-items"></div>
+                        </div>
+                    </div>
+                    <button id="addPlaceBtn" class="btn btn-primary w-100 mb-3">
+                        <i class="bi bi-plus-circle"></i> 添加地点
+                    </button>
+
+                    <div id="placesList" class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">已添加的地点列表</h5>
+                        </div>
+                        <div id="noPlacesAlert" class="alert alert-info">
+                            尚未添加任何地点，请在上方输入框中添加
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button id="optimizeRouteBtn" class="btn btn-success" disabled>
+                            <i class="bi bi-lightning-charge"></i> 智能优化路线
+                        </button>
+                        <button id="clearRouteBtn" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> 清空路线
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <!-- 地图区 -->
+            <div class="col-lg-8">
+                <div class="map-container" id="mapContainer"></div>
+            </div>
+            
         </div>
-    </section>
 
-
-
-    <section id="mission" class="grey_section">
-        <div class="container">
+        <!-- 第二行：结果展示区 -->
             <div class="row">
-                <h2 class="block-header text-center">开心舒适的旅游体验</h2>
-                <p class="first_indent text-center"> 根据您的喜好与经典特色定制您的专属北京市旅游路线 </p>
-                <div class="col-sm-4 to_animate text-center" data-animation="fadeInLeftBig">
-                    <img src="static/example/about_us.jpg" alt="">
-                </div>
-                <div class="mission_block col-sm-8 to_animate" data-animation="fadeInRightBig">
-                    <div>
-                        采用机器学习方法，为您推荐您的专属旅游指南
-                    </div>
-                </div>
+            <div class="col-12">
+                <div class="results-container">
+                    <ul class="nav nav-tabs" id="resultsTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="places-tab" data-bs-toggle="tab" data-bs-target="#placesTab" type="button" role="tab">
+                                <i class="bi bi-geo-alt"></i> 地点列表
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="route-tab" data-bs-toggle="tab" data-bs-target="#routeTab" type="button" role="tab">
+                                <i class="bi bi-signpost"></i> 路线详情
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#statsTab" type="button" role="tab">
+                                <i class="bi bi-graph-up"></i> 路线统计
+                            </button>
+                        </li>
 
-            </div>
-        </div>
-    </section>
-
-    <!-- 
-
-<section id="team" class="parallax color_section">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 text-center">
-                    <h2 class="block-header">我们的团队</h2>
-                </div>
-            </div>
-            <div class="row to_animate_child_blocks">
-                <div class="block col-sm-6 col-md-3 to_animate" data-animation="fadeInUpBig">
-                    <div class="thumbnail">
-                        <img src="static/example/team/team1.jpg" alt="team">
-                        <div class="caption">
-                            <h4>Sam liu</h4>
-                            <p>Director</p>
-
-                        </div>
-                        <p class="team-social">
-                            <a class="socialico-twitter" href="#" title="Twitter">#</a>
-                            <a class="socialico-facebook" href="#" title="Facebook">#</a>
-                            <a class="socialico-linkedin" href="#" title="LinkedIn">#</a>
-                        </p>
-                    </div>
-                </div>
-                <div class="block col-sm-6 col-md-3 to_animate" data-animation="fadeInUpBig">
-                    <div class="thumbnail">
-                        <img src="static/example/team/team2.jpg" alt="team">
-                        <div class="caption">
-                            <h4>Cabbage zheng</h4>
-                            <p>Manager</p>
-
-                        </div>
-                        <p class="team-social">
-                            <a class="socialico-twitter" href="#" title="Twitter">#</a>
-                            <a class="socialico-facebook" href="#" title="Facebook">#</a>
-                            <a class="socialico-linkedin" href="#" title="LinkedIn">#</a>
-                        </p>
-                    </div>
-                </div>
-                <div class="block col-sm-6 col-md-3 to_animate" data-animation="fadeInUpBig">
-                    <div class="thumbnail">
-                        <img src="static/example/team/team3.jpg" alt="team">
-                        <div class="caption">
-                            <h4>Shawn xiao</h4>
-                            <p>Advertising Manager</p>
-
-                        </div>
-                        <p class="team-social">
-                            <a class="socialico-twitter" href="#" title="Twitter">#</a>
-                            <a class="socialico-facebook" href="#" title="Facebook">#</a>
-                            <a class="socialico-linkedin" href="#" title="LinkedIn">#</a>
-                        </p>
-                    </div>
-                </div>
-                <div class="block col-sm-6 col-md-3 to_animate" data-animation="fadeInUpBig">
-                    <div class="thumbnail">
-                        <img src="static/example/team/team4.jpg" alt="team">
-                        <div class="caption">
-                            <h4>Hawking dong</h4>
-                            <p>Photographer</p>
-
-                        </div>
-                        <p class="team-social">
-                            <a class="socialico-twitter" href="#" title="Twitter">#</a>
-                            <a class="socialico-facebook" href="#" title="Facebook">#</a>
-                            <a class="socialico-linkedin" href="#" title="LinkedIn">#</a>
-                        </p>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-    </section> -->
-
-    <section id="testimonials" class="grey_section">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 text-center">
-
-                    <div id="carousel-testimonials-fullwidth" class="carousel slide widget_testimonials block">
-
-                        <!-- Indicators -->
-                        <ol class="carousel-indicators">
-                            <li data-target="#carousel-testimonials-fullwidth" data-slide-to="0" class="active"></li>
-                            <li data-target="#carousel-testimonials-fullwidth" data-slide-to="1"></li>
-                            <li data-target="#carousel-testimonials-fullwidth" data-slide-to="2"></li>
-                        </ol>
-                        <div class="carousel-inner">
-                            <div class="item active">
-                                <h4 class="carousel-introtext">
-                                    体验极好
-                                </h4>
-                                <p class="carousel-readmore">
-                                    Alice
-                                </p>
-                            </div>
-                            <div class="item">
-                                <h4 class="carousel-introtext">
-                                    感觉很不错
-                                </h4>
-                                <p class="carousel-readmore">
-                                    Simon
-                                </p>
-                            </div>
-                            <div class="item">
-                                <h4 class="carousel-introtext">
-                                    我喜欢
-                                </h4>
-                                <p class="carousel-readmore">
-                                    Mike
-                                </p>
+                    </ul>
+                    
+                    <div class="tab-content" id="resultsTabContent">
+                        <!-- 地点列表选项卡 -->
+                        <div class="tab-pane active" id="placesTab" role="tabpanel">
+                            <div id="placesDetails" class="list-group">
+                                <p class="text-muted">地点添加后将显示在这里</p>
                             </div>
                         </div>
-                    </div>
+                        <!-- 路线详情选项卡 -->
+                        <div class="tab-pane fade show" id="routeTab" role="tabpanel">
+                            <div id="routeDetails">
+                                <p class="text-muted">路线规划完成后将显示详细信息</p>
+                            </div>
+                            <div id="panel"></div>
+                        </div>
+                        
+                        <!-- 路线统计选项卡 -->
+                        <div class="tab-pane fade" id="statsTab" role="tabpanel">
+                            <!-- 原有总统计 -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="route-stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-0">总距离</h6>
+                                                <p class="mb-0 text-muted">全程行驶距离</p>
+                                            </div>
+                                            <span id="totalDistance" class="badge bg-primary place-badge">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="route-stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-0">预计时间</h6>
+                                                <p class="mb-0 text-muted">不含停留时间</p>
+                                            </div>
+                                            <span id="totalDuration" class="badge bg-primary place-badge">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="route-stat-card">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-0">途经地点</h6>
+                                                <p class="mb-0 text-muted">包含起点终点</p>
+                                            </div>
+                                            <span id="totalPlaces" class="badge bg-primary place-badge">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 新增：分段距离和时间 -->
+                            <div class="mt-4">
+                                <h6 class="mb-3">路段详情</h6>
+                                <div class="route-segments" id="routeSegments">
+                                    <!-- 这里会动态生成路段信息 -->
+                                    <p class="text-muted">路线规划完成后将显示各路段详情</p>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-
-
-    <footer>
-        <div class="social">
-            <div class="social_icons">
-                <a class="social-icons__sep" href="#"><i class="fa fa-twitter"></i></a>
-                <a class="social-icons__sep" href="#"><i class="fa fa-facebook"></i></a>
-                <a class="social-icons__sep" href="#"><i class="fa fa-pinterest"></i></a>
-                <a class="social-icons__sep" href="#"><i class="fa fa-google-plus"></i></a>
-                <a href="#"><i class="fa fa-rss"></i></a>
-            </div>
-            <img alt="" src="static/example/footer_bg.jpg">
-        </div>
-    </footer>
-
-    <section id="copyright" class="color_section">
+    <!-- 页脚 -->
+    <footer class="bg-light mt-5 py-4">
         <div class="container">
             <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 XMU - Travel Planning</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-decoration-none me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-decoration-none me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-decoration-none me-2"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-decoration-none"><i class="bi bi-linkedin"></i></a>
 
                 <div class="col-sm-12 text-center">
                     &copy; UCAS 2025 - Travel Planning
                 </div>
             </div>
-
         </div>
-    </section>
+    </footer>
+
+    <!-- 高德地图API -->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: "8b75c95a7713727cb1a784dc077f050f",
+        };
+    </script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=51da425732aeb5ec7549ace04b8580f0"></script>
+    <script src="https://webapi.amap.com/ui/1.1/main.js"></script>  
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 自定义JS -->
+    <script>
+        // 初始化地图
+        let map;
+        let placeSearch;
+        let driving;
+        let markers = [];
+        let places = [];
+        let routeLine;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化高德地图
+            initMap();
+            
+            // 初始化地点搜索服务
+            initPlaceSearch();
+            
+            // 初始化路线规划服务
+            initDriving();
+            
+            // 绑定事件
+            bindEvents();
+        });
+
+        function initMap() {
+            map = new AMap.Map('mapContainer', {
+                viewMode: '3D',
+                zoom: 12,
+                center: [116.397428, 39.90923],
+                mapStyle: 'amap://styles/normal'
+            });
+            
+            map.plugin(["AMap.Scale"], function() {
+                map.addControl(new AMap.Scale({ position: 'LB' }));
+            });
+            
+            map.plugin(["AMap.ToolBar"], function() {
+                map.addControl(new AMap.ToolBar({ position: 'RT' }));
+            });
+            
+            map.plugin(["AMap.ControlBar"], function() {
+                map.addControl(new AMap.ControlBar({
+                    position: { right: '10px', top: '10px' },
+                    showZoomBar: true,
+                    showControlButton: true
+                }));
+            });
+            
+            map.plugin(["AMap.HawkEye"], function() {
+                map.addControl(new AMap.HawkEye({ opened: true }));
+            });
+        }
+
+        function initPlaceSearch() {
+            AMap.plugin(['AMap.PlaceSearch', 'AMap.AutoComplete'], function() {
+                placeSearch = new AMap.PlaceSearch({
+                    pageSize: 5,
+                    pageIndex: 1,
+                    city: '北京'
+                });
+                
+                const autoComplete = new AMap.AutoComplete({ city: '北京' });
+                
+                const placeInput = document.getElementById('placeInput');
+                placeInput.addEventListener('input', function() {
+                    const keyword = placeInput.value.trim();
+                    if (keyword.length > 1) {
+                        autoComplete.search(keyword, function(status, result) {
+                            if (status === 'complete' && result.tips) {
+                                showAutocompleteResults(result.tips);
+                            }
+                        });
+                    } else {
+                        hideAutocompleteResults();
+                    }
+                });
+            });
+        }
+
+        function showAutocompleteResults(pois) {
+            const autocompleteList = document.getElementById('autocomplete-list');
+            autocompleteList.innerHTML = '';
+            
+            pois.forEach(poi => {
+                const item = document.createElement('div');
+                item.innerHTML = `<strong>${poi.name}</strong><br><small>${poi.address}</small>`;
+                item.addEventListener('click', function() {
+                    document.getElementById('placeInput').value = poi.name;
+                    hideAutocompleteResults();
+                });
+                autocompleteList.appendChild(item);
+            });
+        }
+
+        function hideAutocompleteResults() {
+            document.getElementById('autocomplete-list').innerHTML = '';
+        }
+
+        function initDriving() {
+            AMap.plugin(["AMap.Driving"], function() {
+                driving = new AMap.Driving({
+                    map: map,
+                    panel: "panel",
+                    policy: AMap.DrivingPolicy.LEAST_TIME
+                });
+            });
+        }
+
+        function bindEvents() {
+            document.getElementById('addPlaceBtn').addEventListener('click', addPlace);
+            document.getElementById('placeInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addPlace();
+            });
+            document.getElementById('optimizeRouteBtn').addEventListener('click', planRoute);
+            document.getElementById('clearRouteBtn').addEventListener('click', clearRoute);
+
+            // 绑定路线类型切换按钮
+            document.querySelectorAll('.route-type').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的 active 类
+                    document.querySelectorAll('.route-type').forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.remove('btn-primary'); // 移除选中的填充色
+                        b.classList.add('btn-outline-primary'); // 添加未选中的边框色
+                    });
+
+                    // 为当前点击的按钮添加 active 类
+                    this.classList.add('active');
+                    this.classList.remove('btn-outline-primary'); // 移除未选中的边框色
+                    this.classList.add('btn-primary'); // 添加选中的填充色
+
+                    // 更新当前的路线类型
+                    currentRouteType = this.dataset.type;
+
+                    // 如果有至少两个地点，则规划路线
+                    if (places.length >= 2) {
+                        planRoute();
+                    }
+                });
+            });
+
+        }
+
+        function addPlace() {
+            const placeInput = document.getElementById('placeInput');
+            const placeName = placeInput.value.trim();
+            
+            if (placeName === '') {
+                alert('请输入地点名称');
+                return;
+            }
+            
+            placeSearch.search(placeName, function(status, result) {
+                if (status === 'complete' && result.poiList?.pois?.length > 0) {
+                    const poi = result.poiList.pois[0];
+                    addPlaceToList(poi.name, poi.location, poi.address);
+                    placeInput.value = '';
+                    hideAutocompleteResults();
+                    updatePlacesTab();
+                    document.getElementById('totalPlaces').textContent = places.length;
+                } else {
+                    alert('未找到该地点，请尝试更精确的名称');
+                }
+            });
+        }
+
+        // 修改 addPlaceToList 函数
+        function addPlaceToList(name, location, address) {
+            const placesList = document.getElementById('placesList');
+            document.getElementById('noPlacesAlert').classList.add('d-none');
+            
+            const placeId = 'place-' + Date.now();
+            const placeItem = document.createElement('div');
+            placeItem.className = 'place-item';
+            placeItem.id = placeId;
+            
+            // 先添加到 places 数组，再使用正确的 length 值
+            places.push({
+                id: placeId,
+                name: name,
+                location: location,
+                address: address
+            });
+            
+            // 使用 places.length 作为序号
+            placeItem.innerHTML = `
+                <span class="place-handle"><i class="bi bi-grip-vertical"></i></span>
+                <span class="flex-grow-1">
+                    <strong>${name}</strong><br>
+                    <small class="text-muted">${address}</small>
+                </span>
+                <span class="badge bg-primary rounded-pill place-badge">${places.length}</span>
+                <button class="btn btn-sm btn-outline-danger remove-place ms-2" data-id="${placeId}">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            
+            placesList.appendChild(placeItem);
+            document.getElementById('optimizeRouteBtn').disabled = false;
+            document.getElementById('totalPlaces').textContent = places.length;
+            
+            placeItem.querySelector('.remove-place').addEventListener('click', function() {
+                removePlace(placeId);
+            });
+            
+            addMarkerToMap(places[places.length - 1].id, name, location, address, places.length); // 使用正确的序号
+            map.setCenter([location.lng, location.lat]);
+        }
+
+        function removePlace(placeId) {
+            document.getElementById(placeId).remove();
+            places = places.filter(place => place.id !== placeId);
+            
+            if (places.length === 0) {
+                document.getElementById('noPlacesAlert').classList.remove('d-none');
+                document.getElementById('optimizeRouteBtn').disabled = true;
+            }
+            
+            removeMarkerFromMap(placeId);
+            clearRouteLine();
+            updatePlacesTab();
+            document.getElementById('totalPlaces').textContent = places.length;
+            
+            // 重新编号剩余地点
+            document.querySelectorAll('.place-item').forEach((item, index) => {
+                item.querySelector('.badge').textContent = index + 1;
+            });
+        }
+
+        function addMarkerToMap(id, name, location, address, index) {
+            const marker = new AMap.Marker({
+                content: `<div style="background-color:#0d6efd;color:white;border-radius:50%;width:24px;height:24px;text-align:center;line-height:24px;">${index}</div>`,
+                position: new AMap.LngLat(location.lng, location.lat),
+                offset: new AMap.Pixel(-12, -12),
+                map: map
+            });
+            
+            markers.push({
+                id: 'marker-' + index,
+                marker: marker,
+                placeId: id
+            });
+            
+            marker.on('click', function() {
+                new AMap.InfoWindow({
+                    content: `<div style="padding:5px;">
+                        <strong>${name}</strong><br>
+                        <small>${address}</small><br>
+                        <small>第 ${index} 站</small>
+                    </div>`,
+                    offset: new AMap.Pixel(0, -30)
+                }).open(map, marker.getPosition());
+            });
+        }
+
+        function removeMarkerFromMap(placeId) {
+            const markerIndex = markers.findIndex(m => m.placeId === placeId);
+            if (markerIndex !== -1) {
+                markers[markerIndex].marker.setMap(null);
+                markers.splice(markerIndex, 1);
+            }
+        }
+
+        function planRoute() {
+            if (places.length < 2) {
+                alert('至少需要两个地点才能规划路线');
+                return;
+            }
+            
+            startOptimizing();
+            clearRouteLine();
+            
+            const points = places.map(place => ({
+                id: place.id,
+                name: place.name,
+                address: place.address,
+                lnglat: [place.location.lng, place.location.lat]
+            }));
+            
+            optimizeRouteOrder(points)
+                .then(optimizedOrder => {
+                    reorderPlaces(optimizedOrder);
+                    showOptimizedStatus();
+                    planRouteWithWaypoints(optimizedOrder);
+                })
+                .catch(error => {
+                    console.error('路线优化失败:', error);
+                    alert('路线优化失败: ' + error.message);
+                })
+                .finally(() => {
+                    stopOptimizing();
+                });
+        }
+
+        function startOptimizing() {
+            const btn = document.getElementById('optimizeRouteBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="optimize-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 计算最优路线...';
+            document.getElementById('addPlaceBtn').disabled = true;
+            document.getElementById('clearRouteBtn').disabled = true;
+            document.querySelector('.search-panel').classList.add('optimizing');
+        }
+
+        function stopOptimizing() {
+            const btn = document.getElementById('optimizeRouteBtn');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-lightning-charge"></i> 智能优化路线';
+            document.getElementById('addPlaceBtn').disabled = false;
+            document.getElementById('clearRouteBtn').disabled = false;
+            document.querySelector('.search-panel').classList.remove('optimizing');
+        }
+
+        function showOptimizedStatus() {
+            document.getElementById('placesList').classList.add('route-optimized');
+        }
+
+        function optimizeRouteOrder(points) {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (points.length <= 2) {
+                        resolve(points);
+                        return;
+                    }
+                    
+                    let optimizedOrder = [];
+                    const center = getCenterPoint(points);
+                    let startIndex = 0;
+                    let minDistance = Infinity;
+                    
+                    points.forEach((point, index) => {
+                        const dist = getDistance(center, point.lnglat);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            startIndex = index;
+                        }
+                    });
+                    
+                    optimizedOrder.push(points[startIndex]);
+                    const remainingPoints = [...points.slice(0, startIndex), ...points.slice(startIndex + 1)];
+                    
+                    while (remainingPoints.length > 0) {
+                        const lastPoint = optimizedOrder[optimizedOrder.length - 1];
+                        let nearestIndex = 0;
+                        let nearestDistance = getDistance(lastPoint.lnglat, remainingPoints[0].lnglat);
+                        
+                        for (let i = 1; i < remainingPoints.length; i++) {
+                            const distance = getDistance(lastPoint.lnglat, remainingPoints[i].lnglat);
+                            if (distance < nearestDistance) {
+                                nearestDistance = distance;
+                                nearestIndex = i;
+                            }
+                        }
+                        
+                        optimizedOrder.push(remainingPoints[nearestIndex]);
+                        remainingPoints.splice(nearestIndex, 1);
+                    }
+                    
+                    resolve(optimizedOrder);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        function getCenterPoint(points) {
+            const sum = points.reduce((acc, point) => {
+                return [acc[0] + point.lnglat[0], acc[1] + point.lnglat[1]];
+            }, [0, 0]);
+            return [sum[0] / points.length, sum[1] / points.length];
+        }
+
+        function getDistance(lnglat1, lnglat2) {
+            const rad = x => x * Math.PI / 180;
+            const lat1 = lnglat1[1];
+            const lon1 = lnglat1[0];
+            const lat2 = lnglat2[1];
+            const lon2 = lnglat2[0];
+            const R = 6378137;
+            const dLat = rad(lat2 - lat1);
+            const dLon = rad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(rad(lat1)) * Math.cos(rad(lat2)) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function reorderPlaces(optimizedOrder) {
+            places = optimizedOrder.map(point => {
+                return {
+                    id: point.id,
+                    name: point.name,
+                    address: point.address,
+                    location: { lng: point.lnglat[0], lat: point.lnglat[1] }
+                };
+            });
+            
+            renderPlacesList();
+            updateMarkers();
+            updatePlacesTab();
+        }
+
+        function renderPlacesList() {
+            const placesList = document.getElementById('placesList');
+            
+            // 保留标题和提示元素
+            const titleElement = placesList.querySelector('h5');
+            const noPlacesAlert = document.getElementById('noPlacesAlert');
+            
+            // 移除所有地点项（保留标题和提示）
+            const placeItems = placesList.querySelectorAll('.place-item');
+            placeItems.forEach(item => item.remove());
+            
+            // 创建新的列表容器
+            const listContainer = document.createElement('div');
+            
+            places.forEach((place, index) => {
+                const placeItem = document.createElement('div');
+                placeItem.className = 'place-item';
+                placeItem.id = place.id;
+                placeItem.innerHTML = `
+                    <span class="place-handle"><i class="bi bi-grip-vertical"></i></span>
+                    <span class="flex-grow-1">
+                        <strong>${place.name}</strong><br>
+                        <small class="text-muted">${place.address}</small>
+                    </span>
+                    <span class="badge bg-primary rounded-pill place-badge">${index + 1}</span>
+                    <button class="btn btn-sm btn-outline-danger remove-place ms-2" data-id="${place.id}">
+                        <i class="bi bi-x"></i>
+                    </button>
+                `;
+                
+                listContainer.appendChild(placeItem);
+                placeItem.querySelector('.remove-place').addEventListener('click', function() {
+                    removePlace(place.id);
+                });
+            });
+            
+            // 添加列表容器到正确位置
+            placesList.appendChild(listContainer);
+            
+            // 控制提示元素的显示
+            if (places.length > 0) {
+                noPlacesAlert.classList.add('d-none');
+            } else {
+                noPlacesAlert.classList.remove('d-none');
+            }
+        }
 
 
-    <div class="preloader">
-        <div class="preloaderimg"></div>
-    </div>
+        function updateMarkers() {
+            markers.forEach(markerObj => {
+                markerObj.marker.setMap(null);
+            });
+            markers = [];
+            
+            // 确保序号从1开始且连续
+            places.forEach((place, index) => {
+                addMarkerToMap(place.id, place.name, place.location, place.address, index + 1);
+            });
+        }
 
-    <script src="static/js/vendor/jquery-1.11.1.min.js"></script>
-    <script src="static/js/vendor/jquery-migrate-1.2.1.min.js"></script>
-    <script src="static/js/vendor/bootstrap.min.js"></script>
-    <script src="static/js/vendor/placeholdem.min.js"></script>
-    <script src="static/js/vendor/hoverIntent.js"></script>
-    <script src="static/js/vendor/superfish.js"></script>
-    <script src="static/js/vendor/jquery.actual.min.js"></script>
-    <script src="static/js/vendor/jquery.appear.js"></script>
-    <script src="static/js/vendor/jquerypp.custom.js"></script>
-    <script src="static/js/vendor/jquery.elastislide.js"></script>
-    <script src="static/js/vendor/jquery.flexslider-min.js"></script>
-    <script src="static/js/vendor/jquery.prettyPhoto.js"></script>
-    <script src="static/js/vendor/jquery.easing.1.3.js"></script>
-    <script src="static/js/vendor/jquery.ui.totop.js"></script>
-    <script src="static/js/vendor/jquery.isotope.min.js"></script>
-    <script src="static/js/vendor/jquery.easypiechart.min.js"></script>
-    <script src='static/js/vendor/jflickrfeed.min.js'></script>
-    <script src="static/js/vendor/jquery.sticky.js"></script>
-    <script src='static/js/vendor/owl.carousel.min.js'></script>
-    <script src='static/js/vendor/jquery.nicescroll.min.js'></script>
-    <script src='static/js/vendor/jquery.fractionslider.min.js'></script>
-    <script src='static/js/vendor/jquery.scrollTo-min.js'></script>
-    <script src='static/js/vendor/jquery.localscroll-min.js'></script>
-    <script src='static/js/vendor/jquery.parallax-1.1.3.js'></script>
-    <script src='static/js/vendor/jquery.bxslider.min.js'></script>
-    <script src='static/js/vendor/jquery.funnyText.min.js'></script>
-    <script src='static/js/vendor/jquery.countTo.js'></script>
-    <script src="static/js/vendor/grid.js"></script>
-    <script src="static/js/plugins.js"></script>
-    <script src="static/js/main.js"></script>
+        function updatePlacesTab() {
+            const placesDetails = document.getElementById('placesDetails');
+            placesDetails.innerHTML = '';
+            
+            if (places.length === 0) {
+                placesDetails.innerHTML = '<p class="text-muted">地点添加后将显示在这里</p>';
+                return;
+            }
+            
+            places.forEach((place, index) => {
+                const placeElement = document.createElement('a');
+                placeElement.href = '#';
+                placeElement.className = 'list-group-item list-group-item-action';
+                placeElement.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${place.name}</h5>
+                        <small class="text-muted">第 ${index + 1} 站</small>
+                    </div>
+                    <p class="mb-1">${place.address}</p>
+                    <small class="text-muted">点击查看详情</small>
+                `;
+                
+                placeElement.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    map.setCenter([place.location.lng, place.location.lat]);
+                    map.setZoom(16);
+                });
+                
+                placesDetails.appendChild(placeElement);
+            });
+        }
+
+        function planRouteWithWaypoints(optimizedOrder) {
+            const waypoints = optimizedOrder.slice(1, -1).map(point => point.lnglat);
+            
+            driving.search(
+                optimizedOrder[0].lnglat,
+                optimizedOrder[optimizedOrder.length - 1].lnglat,
+                { waypoints: waypoints },
+                function(status, result) {
+                    if (status === 'complete') {
+                        showRoute(result.routes[0]);
+                        updateRouteStats(result.routes[0]);
+                    } else {
+                        alert('路线规划失败: ' + result.info);
+                    }
+                }
+            );
+        }
+
+        function showRoute(route) {
+            if (routeLine) {
+                routeLine.setMap(null);
+            }
+
+            routeLine = new AMap.Polyline({
+                path: route.path,
+                strokeColor: "#3366FF",
+                strokeWeight: 6,
+                map: map
+            });
+
+            map.setFitView([routeLine]);
+        }
+
+        function updateRouteStats(route) {
+            // 更新总统计数据
+            document.getElementById('totalDistance').textContent = (route.distance / 1000).toFixed(1) + '公里';
+            
+            let totalTime = route.time;
+            if (route.tmcs?.length > 0) {
+                totalTime = route.tmcs.reduce((sum, tmc) => sum + tmc.time, 0);
+            }
+            
+            const hours = Math.floor(totalTime / 3600);
+            const minutes = Math.floor((totalTime % 3600) / 60);
+            
+            let timeText = '';
+            if (hours > 0) {
+                timeText += hours + '小时';
+            }
+            timeText += minutes + '分钟';
+            
+            document.getElementById('totalDuration').textContent = timeText;
+            document.getElementById('totalPlaces').textContent = places.length;
+            
+            // 更新路段详情
+            updateSegmentDetails(route);
+        }
+
+        function updateSegmentDetails(route) {
+            const segmentsContainer = document.getElementById('routeSegments');
+            segmentsContainer.innerHTML = '';
+            
+            // 检查数据有效性
+            if (!route || !route.steps || !places || places.length < 2) {
+                segmentsContainer.innerHTML = '<p class="text-muted">路线规划完成后将显示各路段详情</p>';
+                return;
+            }
+            
+            // 1. 提取所有关键点（起点 + 途经点 + 终点）
+            const waypoints = places.map(place => ({
+                name: place.name,
+                location: place.location // 假设格式为[lng, lat]
+            }));
+            
+            // 2. 遍历steps，匹配途经点
+            let currentWaypointIndex = 0;
+            let segmentStartIndex = 0; // 当前路段在steps中的起始索引
+            let accumulatedDistance = 0;
+            
+            // 3. 分组steps到各个路段（起点→途经点1→途经点2→终点）
+            const segments = [];
+            for (let i = 0; i < route.steps.length; i++) {
+                const step = route.steps[i];
+                
+                // 检查当前step的终点是否是下一个途经点
+                if (currentWaypointIndex + 1 < waypoints.length) {
+                    const nextWaypoint = waypoints[currentWaypointIndex + 1];
+                    const stepEnd = [step.end_location.lng, step.end_location.lat];
+                    
+                    // 比较坐标（考虑浮点数误差）
+                    if (isCoordinateEqual(stepEnd, nextWaypoint.location)) {
+                        // 保存当前路段的所有steps
+                        segments.push({
+                            from: waypoints[currentWaypointIndex],
+                            to: nextWaypoint,
+                            steps: route.steps.slice(segmentStartIndex, i + 1),
+                            distance: route.steps
+                                .slice(segmentStartIndex, i + 1)
+                                .reduce((sum, s) => sum + s.distance, 0),
+                            time: route.steps
+                                .slice(segmentStartIndex, i + 1)
+                                .reduce((sum, s) => sum + s.time, 0)
+                        });
+                        
+                        // 移动到下一个途经点
+                        currentWaypointIndex++;
+                        segmentStartIndex = i + 1;
+                    }
+                }
+            }
+            
+            // 4. 渲染所有路段
+            segments.forEach((segment, index) => {
+                const distanceKm = (segment.distance / 1000).toFixed(1);
+                const timeMinutes = Math.floor(segment.time / 60);
+                
+                const segmentElement = document.createElement('div');
+                segmentElement.className = 'segment-item mb-3';
+                segmentElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${segment.from.name} → ${segment.to.name}</h6>
+                            <p class="mb-0 text-muted small">${distanceKm}公里 · ${timeMinutes}分钟</p>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary">第${index + 1}段</span>
+                        </div>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar" role="progressbar" 
+                            style="width: ${(segment.distance / route.distance * 100).toFixed(1)}%"></div>
+                    </div>
+                `;
+                segmentsContainer.appendChild(segmentElement);
+            });
+        }
+
+        // 坐标比较工具函数
+        function isCoordinateEqual(coord1, coord2, tolerance = 0.0001) {
+            dez(Math.abs(coord1[0] - coord2['lng']), Math.abs(coord1[1] - coord2['lat']));
+            return Math.abs(coord1[0] - coord2['lng']) < tolerance 
+                && Math.abs(coord1[1] - coord2['lat']) < tolerance;
+        }
 
 
+
+        function clearRoute() {
+            places.forEach(place => {
+                document.getElementById(place.id).remove();
+                removeMarkerFromMap(place.id);
+            });
+            
+            places = [];
+            markers = [];
+            
+            document.getElementById('noPlacesAlert').classList.remove('d-none');
+            document.getElementById('optimizeRouteBtn').disabled = true;
+            
+            clearRouteLine();
+            
+            document.getElementById('routeDetails').innerHTML = '<p class="text-muted">路线规划完成后将显示详细信息</p>';
+            document.getElementById('totalPlaces').textContent = '0';
+            document.getElementById('totalDistance').textContent = '-';
+            document.getElementById('totalDuration').textContent = '-';
+            document.getElementById('placesList').classList.remove('route-optimized');
+            document.getElementById('placesDetails').innerHTML = '<p class="text-muted">地点添加后将显示在这里</p>';
+        }
+
+        function clearRouteLine() {
+            if (routeLine) {
+                routeLine.setMap(null);
+                routeLine = null;
+            }
+        }
+    </script>
 </body>
-
 </html>
