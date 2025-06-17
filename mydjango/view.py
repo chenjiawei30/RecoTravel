@@ -9,7 +9,12 @@ from django.http import JsonResponse, StreamingHttpResponse
 import requests
 import os
 from django.conf import settings
+from dotenv import load_dotenv
+from django.views.decorators.csrf import csrf_exempt
 from .sam.seasonal_rec import seasonal_recommend
+
+# 加载.env文件
+load_dotenv()
 
 def travelHome(request):
     return render(request,"index.html")
@@ -166,18 +171,20 @@ def register_view(request):
     return render(request, 'register.html')
 
 
+@csrf_exempt
 def chat_view(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '')
             
-            # 从环境变量获取API密钥
-            api_key = "sk-Q4tevkNHvccXSa70FqtnxYWJV7Nz2t9nyXbBh82b3F04rx2h"
+            # 从环境变量获取API key
+            api_key = os.getenv('OPENAI_API_KEY')
             if not api_key:
-                print("Error: API key not configured")
+                print("Error: OPENAI_API_KEY not found in environment variables")
                 return JsonResponse({'error': 'API key not configured'}, status=500)
             
+            # 实验室内部搭建API网址
             api_url = "http://api.cipsup.cn/v1/chat/completions"
             
             headers = {
@@ -196,6 +203,7 @@ def chat_view(request):
             请用专业、友好、简洁的语气回答用户的问题。请不要使用markdown格式返回，直接用文本形式返回。"""
             
             payload = {
+                # 使用千问72B大模型
                 "model": "Qwen2.5-72B-Instruct-GPTQ-Int4",
                 "messages": [
                     {"role": "system", "content": system_prompt},
