@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>景点路线规划</title>
+    <meta charset="utf-8">
+
+    <title>京迹——北京历史文化景点推荐系统</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <link rel="stylesheet" href="static/css/animations.css">
+    <link rel="stylesheet" href="static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="static/css/main.css">
+    <script src="static/js/vendor/modernizr-2.6.2.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body {
+        /* body {
             font-family: 'Arial', sans-serif;
             background-color: #f8f9fa;
         }
@@ -15,7 +24,7 @@
             background-color: #fff;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-        }
+        } */
         .search-panel {
             background-color: #fff;
             border-radius: 8px;
@@ -157,7 +166,7 @@
 </head>
 <body>
     <!-- 导航栏 -->
-    <header class="header">
+    <header id="header" class="light_section">
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
@@ -165,7 +174,7 @@
                         <img src="static/example/logo-.png" alt="" style="height: 80px;"></a>
                     </div>
                 </div>
-                <!-- <a class="navbar-brand" href="#top"><img src="static/example/logo.png" alt=""></a> -->
+                <!-- <a class="navbar-brand" href="#top"><img src="static/example/logo-.png" alt=""></a> -->
                 <div class="col-sm-8 mainmenu_wrap">
                     <div class="main-menu-icon visible-xs">
                         <span></span>
@@ -173,23 +182,16 @@
                         <span></span>
                     </div>
                     <nav>
-                        <ul id="mainmenu" class="menu sf-menu responsive-menu superfish">
-                            <li class="">
+                        <ul id="mainmenu" class="menu sf-menu responsive-menu superfish" style="width: 100%;">
+                            <li class="active">
                                 <a href="./travelhome">首页</a>
                             </li>
                             <li class="">
                                 <a href="./gallery.html">景点搜索</a>
                             </li>
-                            <li class="active">
+                            <li class="">
                                 <a href="./route_design.html">景点路线规划</a>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                    博客
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="./blog.html">博客</a></li>
-                                    <li><a class="dropdown-item" href="./blog-single.html">博客文章</a></li>
                             <li class="dropdown">
                                 <a href="./blog.html">博客</a>
                                 <ul class="dropdown-menu">
@@ -200,9 +202,6 @@
                                         <a href="./blog-single.html">博客文章</a>
                                     </li>
                                 </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="./about.html">关于</a>
                             </li>
                             <li class="">
                                 <a href="./about.html">关于</a>
@@ -225,20 +224,30 @@
                                 <a href="./contact.html">联系</a>
                             </li> -->
                         </ul>
-                    </div>
+                    </nav>
                 </div>
-            </nav>
+            </div>
         </div>
     </header>
 
     <!-- 主要内容区 -->
-  <div class="container">
+    <section id="middle" class="grey_section" style="padding-bottom: 20px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="block-header text-center to_animate" data-animation="slideUp">景点路线规划</h2>
+                    <p class="text-center text-muted">输入您想游览的地点，我们将为您规划最佳路线</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- <div class="container">
         <div class="row mb-4">
             <div class="col-12">
-                <h1 class="text-center">景点路线规划</h1>
+                <h2 class="block-header text-center to_animate" data-animation="slideUp">景点路线规划</h2>
                 <p class="text-center text-muted">输入您想游览的地点，我们将为您规划最佳路线</p>
       </div>
-    </div>
+    </div> -->
 
         <!-- 第一行：搜索区和地图 -->
     <div class="row">
@@ -376,25 +385,17 @@
         </div>
     </div>
 
-    <!-- 页脚 -->
-    <footer class="bg-light mt-5 py-4">
+    <section id="copyright" class="color_section">
         <div class="container">
             <div class="row">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0">&copy; 2024 XMU - Travel Planning</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <a href="#" class="text-decoration-none me-2"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="text-decoration-none me-2"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-decoration-none me-2"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-decoration-none"><i class="bi bi-linkedin"></i></a>
 
                 <div class="col-sm-12 text-center">
                     &copy; UCAS 2025 - Travel Planning
                 </div>
             </div>
+
         </div>
-    </footer>
+    </section>
 
     <!-- 高德地图API -->
     <script type="text/javascript">
@@ -991,8 +992,7 @@
                     const nextWaypoint = waypoints[currentWaypointIndex + 1];
                     const stepEnd = [step.end_location.lng, step.end_location.lat];
                     
-                    // 比较坐标（考虑浮点数误差）
-                    if (isCoordinateEqual(stepEnd, nextWaypoint.location)) {
+                    if (step.instruction.includes("到达途经地") || step.instruction.includes("到达目的地")){
                         // 保存当前路段的所有steps
                         segments.push({
                             from: waypoints[currentWaypointIndex],
@@ -1030,22 +1030,16 @@
                             <span class="badge bg-primary">第${index + 1}段</span>
                         </div>
                     </div>
-                    <div class="progress mt-2" style="height: 6px;">
-                        <div class="progress-bar" role="progressbar" 
-                            style="width: ${(segment.distance / route.distance * 100).toFixed(1)}%"></div>
-                    </div>
                 `;
                 segmentsContainer.appendChild(segmentElement);
             });
         }
 
         // 坐标比较工具函数
-        function isCoordinateEqual(coord1, coord2, tolerance = 0.0001) {
-            dez(Math.abs(coord1[0] - coord2['lng']), Math.abs(coord1[1] - coord2['lat']));
-            return Math.abs(coord1[0] - coord2['lng']) < tolerance 
-                && Math.abs(coord1[1] - coord2['lat']) < tolerance;
-        }
-
+        // function isCoordinateEqual(coord1, coord2, tolerance = 0.0002) {
+        //     return Math.abs(coord1[0] - coord2['lng']) < tolerance 
+        //         && Math.abs(coord1[1] - coord2['lat']) < tolerance;
+        // }
 
 
         function clearRoute() {
