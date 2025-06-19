@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}发新帖 - 旅游博客系统{% endblock %}
+{% block content %}
+<div class="row justify-content-center" style="margin-top:40px;">
+    <div class="col-md-8">
+        <div class="card shadow-lg">
+            <div class="card-header text-center" style="background: #fff; border-radius: 18px 18px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0); padding: 28px 0 18px 0;">
+                <h3 class="mb-0" style="font-weight: 800; letter-spacing: 1px; font-size: 2.1rem; color: #222; display: flex; align-items: center; justify-content: center; gap: 14px;">
+                    <i class="fa fa-pencil-square-o" style="font-size: 2.2rem; color: #5b9df9;"></i> 发布新帖子
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="title">标题</label>
+                        <input type="text" class="form-control" id="title" name="title" required maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">内容</label>
+                        <textarea class="form-control" id="content" name="content" rows="8" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">封面图片（可选）</label>
+                        <input type="file" class="form-control-file" id="image" name="image" accept="image/*">
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <button type="submit" class="btn btn-primary px-4">发布</button>
+                        <a href="{% url 'blog' %}" class="btn btn-outline-secondary">返回博客首页</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center text-muted mt-4" style="font-size:15px;">
+            请文明发帖，内容需与北京旅游相关。
+        </div>
+    </div>
+</div>
+{% endblock %}
