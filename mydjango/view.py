@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponse, redirect
+from django.shortcuts import render,HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -12,6 +12,10 @@ from django.conf import settings
 from dotenv import load_dotenv
 from django.views.decorators.csrf import csrf_exempt
 from .sam.seasonal_rec import seasonal_recommend
+from .models import Comment
+from django.utils import timezone
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib import messages
 
 # 加载.env文件
 load_dotenv()
@@ -48,11 +52,25 @@ def error404(request):
 
 
 def blog(request):
-    return render(request,"blog.html")
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return redirect(f'/login/?{REDIRECT_FIELD_NAME}=blog.html')
+        content = request.POST.get('content')
+        if content:
+            Comment.objects.create(user=request.user, username=request.user.username, content=content, created_at=timezone.now())
+    comments = Comment.objects.order_by('-created_at')
+    return render(request, 'blog.html', {'comments': comments})
 
 
 def blog_single(request):
-    return render(request,"blog-single.html")
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return redirect(f'/login/?next=blog-single.html')
+        content = request.POST.get('content')
+        if content:
+            Comment.objects.create(user=request.user, username=request.user.username, content=content, created_at=timezone.now())
+    comments = Comment.objects.order_by('-created_at')
+    return render(request, 'blog-single.html', {'comments': comments})
 
 
 def contact(request):
@@ -270,3 +288,13 @@ def chat_view(request):
             return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.user != comment.user:
+        messages.error(request, '你只能删除自己的评论！')
+        return redirect('blog_single')
+    if request.method == 'POST':
+        comment.delete()
+        messages.success(request, '评论已删除！')
+    return redirect('blog_single')

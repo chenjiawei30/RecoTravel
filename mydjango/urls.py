@@ -10,7 +10,7 @@ urlpatterns = [
     path('404.html',view.error404),
     path('about.html',view.about),
     path('blog.html', view.blog),
-    path('blog-single.html', view.blog_single),
+    path('blog-single.html', view.blog_single, name='blog_single'),
     path('contact.html', view.contact),
     path('gallery.html', view.gallery),
     path('spot.html', view.spot_choose),
@@ -23,6 +23,7 @@ urlpatterns = [
     path('register/', view.register_view, name='register'),
     path('chat/', view.chat_view, name='chat'),
     path("seasonal/", view.seasonal_spot, name="seasonal_spot"),
+    path('delete_comment/<int:comment_id>/', view.delete_comment, name='delete_comment'),
 ]
 
 
