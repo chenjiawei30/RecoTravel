@@ -6,6 +6,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 安全密钥
 SECRET_KEY = '(q4faq9p%p*35^7oor_g48cg2&hf-isf7f4d_9hr(@9d##am50'
 
+LLM_API_KEY = '00a181aaf2ea4230bd0bf4c40ee8dd09.xyk3ExXdXBS32ofG'
+
 # 调试模式
 DEBUG = True
 

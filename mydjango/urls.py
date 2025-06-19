@@ -17,6 +17,7 @@ urlpatterns = [
     path('login/', view.login_view, name='login'),
     path('logout/', view.logout_view, name='logout'),
     path('register/', view.register_view, name='register'),
+    path('recommendation.html', view.recommend_view, name='recommend'),
     path('chat/', view.chat_view, name='chat'),
     path("seasonal/", view.seasonal_spot, name="seasonal_spot"),
     path('delete_comment/<int:comment_id>/', view.delete_comment, name='delete_comment'),

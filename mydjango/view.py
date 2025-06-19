@@ -16,9 +16,14 @@ from .models import Comment
 from django.utils import timezone
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib import messages
-
+import re
 # 加载.env文件
 load_dotenv()
+
+        
+def clean_title(title):
+    # 移除序号、标点和空白字符
+    return re.sub(r'^[0-9\.\s、]+', '', title).strip()
 
 def travelHome(request):
     return render(request,"index.html")
@@ -38,6 +43,58 @@ def gallery(request):
 def error404(request):
     return render(request,"404.html")
 
+def recommend_view(request):
+    if request.method == 'POST':
+        # 获取用户输入关键词
+        keywords = request.POST.get('keywords', '')
+
+        file_path = os.path.join(settings.BASE_DIR, 'static', 'spots.json')
+        with open(file_path, 'r', encoding='utf-8') as f:
+            spots = json.load(f)
+        
+        # 调用大模型API进行推荐
+        # 这里以通用API调用为例，你需要替换为实际使用的大模型API
+        api_url = 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {settings.LLM_API_KEY}'
+        }
+        
+        # 构建提示词 - 增加格式约束
+        prompt = f"根据用户关键词'{keywords}'，从以下景点中推荐3个最匹配的景点。"
+        prompt += "要求：只返回景点标题，每个标题占一行，不要解释和额外内容。"
+        prompt += f"可选景点：{[spot['title'] for spot in spots]}"
+        
+        data = {
+            'model': 'glm-4-flash-250414',  # 修正为示例中的模型
+            'messages': [{'role': 'user', 'content': prompt}],
+            'max_tokens': 12000  # 增加最大 tokens 参数
+        }
+        
+        try:
+            response = requests.post(api_url, headers=headers, json=data)
+            response.raise_for_status()
+            # 修正分割方式并过滤空行
+            recommended_titles = [
+                title.strip() for title in response.json()['choices'][0]['message']['content'].split('\n')
+                if title.strip()
+            ]
+        
+            recommended_titles = [clean_title(title) for title in recommended_titles if clean_title(title)]
+        except Exception as e:
+            # 记录错误日志
+            print(f"错误: {str(e)}")
+            # 返回空推荐结果并提示错误
+            return render(request, 'recommendation.html', {
+                'spots': [], 
+                'keywords': keywords,
+                'error': f'推荐服务错误: {str(e)}'
+            })
+        
+        # 筛选推荐的景点详细信息
+        recommended_spots = [spot for spot in spots if spot['title'] in recommended_titles]
+        return render(request, 'recommendation.html', {'spots': recommended_spots, 'keywords': keywords})
+    return render(request, 'recommendation.html')
 
 def blog(request):
     if request.method == 'POST':
