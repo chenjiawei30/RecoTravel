@@ -24,18 +24,6 @@ load_dotenv()
 def travelHome(request):
     return render(request,"index.html")
 
-
-def spot_choose(request):
-    # 从JSON文件加载景点数据
-    with open('static/spots.json', 'r', encoding='utf-8') as f:
-        spots = json.load(f)
-    return render(request, "spot.html", {'spots': spots})
-
-
-def route_show(request):
-    return render(request,"route.html")
-
-
 def route_design(request):
     return render(request,"route_design.html")
 
@@ -86,60 +74,7 @@ def seasonal_spot(request):
 
     return render(request, "seasonal.html", ctx)
 
-def reco(request):
-    if request.method == "POST":
-        # 解析参数
-        raw_data = urllib.parse.unquote(str(request.body,'utf-8'))
-        spot_data = raw_data.split('&')
-        spot_num = spot_data.pop().lstrip('num=')
-        # 错误处理
-        if spot_num == "输入景点个数":
-            return render(request, "404.html")
 
-        # 取出目标景点个数
-        num = int(spot_num)
-        print(num)
-        # 取出选择的景点
-        spot_list = [s.lstrip('spot=') for s in spot_data]
-        print(spot_list)
-        # 错误处理
-        if len(spot_list) == 0:
-            return render(request, "404.html")
-
-        # 推荐路线
-        route_list = tra_rec(spot_list,num)
-        print(route_list)
-        # 传给前端
-        route = dict()
-
-        route['spot_name'] = route_list[0]
-
-    return render(request,"route.html",route)
-
-
-def gallery(request):
-    page = int(request.GET.get('page', 1))
-    items_per_page = 12
-    
-    with open('static/spots.json', 'r', encoding='utf-8') as f:
-        all_spots = json.load(f)
-    
-    total_items = len(all_spots)
-    total_pages = (total_items + items_per_page - 1) // items_per_page
-    page_range = range(1, total_pages + 1)  # 添加页码范围
-    
-    start_index = (page - 1) * items_per_page
-    end_index = start_index + items_per_page
-    paginated_spots = all_spots[start_index:end_index]
-
-    grouped_spots = [paginated_spots[i:i+4] for i in range(0, len(paginated_spots), 4)]
-    
-    return render(request, "gallery.html", {
-        'grouped_spots': grouped_spots,
-        'total_pages': total_pages,
-        'current_page': page,
-        'page_range': page_range  # 传递页码范围
-    })
 
 
 def login_view(request):

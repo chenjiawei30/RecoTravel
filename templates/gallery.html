@@ -91,16 +91,16 @@
                 </div>
             </div>
             <div class="alert alert-info text-center" style="margin:10px 0 20px; font-size:20px;">
-    <!-- ====== 时令推荐横幅 BEGIN ====== -->
-    <strong style="font-size:22px;">想偷个懒？</strong>
-    一键查看
-    <a href="/seasonal/"
-        class="btn btn-sm"
-        style="background:#31708f; border-color:#31708f; color:#fff; font-size:16px;">
-        本季热门景点
-    </a>
-    </div>
-    <!-- ====== 时令推荐横幅 END ====== -->
+            <!-- ====== 时令推荐横幅 BEGIN ====== -->
+            <strong style="font-size:22px;">想偷个懒？</strong>
+            一键查看
+            <a href="/seasonal/"
+                class="btn btn-sm"
+                style="background:#31708f; border-color:#31708f; color:#fff; font-size:16px;">
+                本季热门景点
+            </a>
+            </div>
+            <!-- ====== 时令推荐横幅 END ====== -->
             <div class="row" style="margin-bottom: 20px; margin-top: 20px;">
                 <div class="col-sm-6 col-sm-offset-3">
                     <div class="input-group">
@@ -118,35 +118,104 @@
                     var searchBtn = document.getElementById('gallery-search-btn');
                     var resetBtn = document.getElementById('gallery-reset-btn');
                     var galleryGrid = document.getElementById('gallery-grid');
+                    var allSpots = []; // 存储所有景点数据
+                    var currentFilteredSpots = []; // 新增：存储当前过滤后的结果
+                    const itemsPerPage = 12; // 每页显示数量
                     
-                    // 修改搜索函数以匹配当前DOM结构
+                    // 一次性加载所有景点数据
+                    fetch('static/spots.json')
+                        .then(response => response.json())
+                        .then(data => {
+                            allSpots = data;
+                            currentFilteredSpots = data; // 初始化：未过滤时等于全部数据
+                            loadGalleryData(1); // 初始加载第一页
+                        });
+                    
+                    // 渲染画廊数据
+                    function renderGallery(spots) {
+                        galleryGrid.innerHTML = '';
+                        const groupedSpots = [];
+                        for (let i = 0; i < spots.length; i += 4) {
+                            groupedSpots.push(spots.slice(i, i + 4));
+                        }
+                    
+                        groupedSpots.forEach(row => {
+                            const rowDiv = document.createElement('div');
+                            rowDiv.className = 'row';
+                    
+                            row.forEach(spot => {
+                                const colDiv = document.createElement('div');
+                                colDiv.className = 'col-sm-3';
+                                colDiv.innerHTML = `
+                                    <div class="gallery-item">
+                                        <img src="${spot.src}" class="img-responsive modal-trigger" 
+                                            <img src="${spot.src}" class="img-responsive modal-trigger" 
+                                                alt="" data-description="${spot.description}">
+                                            <div class="gallery-item-content">
+                                                <h3>${spot.title}</h3>
+                                            </div>
+                                        </div>
+                                    `;
+                                rowDiv.appendChild(colDiv);
+                            });
+                            galleryGrid.appendChild(rowDiv);
+                        });
+                    }
+                    
+                    // 加载指定页数据 - 修改部分
+                    function loadGalleryData(page) {
+                        if (currentFilteredSpots.length === 0) return; // 修改：使用currentFilteredSpots
+                    
+                        const startIndex = (page - 1) * itemsPerPage;
+                        const endIndex = startIndex + itemsPerPage;
+                        const currentPageSpots = currentFilteredSpots.slice(startIndex, endIndex); // 修改：使用currentFilteredSpots
+                    
+                        renderGallery(currentPageSpots);
+                        updatePagination(page, Math.ceil(currentFilteredSpots.length / itemsPerPage)); // 修改：使用currentFilteredSpots
+                    }
+                    
+                    // 更新分页控件 - 保持不变
+                    function updatePagination(currentPage, totalPages) {
+                        const pagination = document.querySelector('.pagination');
+                        pagination.innerHTML = '';
+                
+                        if (currentPage > 1) {
+                            pagination.innerHTML += `<a href="#" onclick="loadGalleryData(${currentPage - 1})">\&laquo; 上一页</a>`;
+                        }
+                
+                        for (let p = 1; p <= totalPages; p++) {
+                            pagination.innerHTML += `<a href="#" onclick="loadGalleryData(${p})" ${p === currentPage ? 'class="active"' : ''}>${p}</a>`;
+                        }
+                
+                        if (currentPage < totalPages) {
+                            pagination.innerHTML += `<a href="#" onclick="loadGalleryData(${currentPage + 1})")>下一页 \&raquo;</a>`;
+                        }
+                    }
+                    
+                    // 修改搜索函数以全局搜索 - 修改部分
                     function filterGallery() {
                         var keyword = searchInput.value.trim().toLowerCase();
-                        // 搜索div元素而非li元素
-                        var items = galleryGrid.querySelectorAll('.col-sm-3');
-                        
-                        Array.from(items).forEach(function (item) {
-                            var title = item.querySelector('h3').textContent.toLowerCase();
-                            // 从图片的data属性获取描述
-                            var img = item.querySelector('img.modal-trigger');
-                            var desc = img ? img.dataset.description.toLowerCase() : '';
-                            
-                            if (title.includes(keyword) || desc.includes(keyword)) {
-                                item.style.display = '';
-                            } else {
-                                item.style.display = 'none';
-                            }
-                        });
-                    }
+                        if (!allSpots.length) return;
                     
-                    // 添加缺失的重置函数
+                        // 在所有景点中搜索
+                        currentFilteredSpots = allSpots.filter(spot => { // 修改：存储到currentFilteredSpots
+                            const title = spot.title.toLowerCase();
+                            const desc = spot.description.toLowerCase();
+                            return title.includes(keyword) || desc.includes(keyword);
+                        });
+                    
+                        // 显示搜索结果的第一页
+                        renderGallery(currentFilteredSpots.slice(0, itemsPerPage)); // 修改：使用currentFilteredSpots
+                        updatePagination(1, Math.ceil(currentFilteredSpots.length / itemsPerPage)); // 修改：使用currentFilteredSpots
+                    }
+                
+                    // 重置搜索 - 修改部分
                     function resetGallery() {
                         searchInput.value = '';
-                        var items = galleryGrid.querySelectorAll('.col-sm-3');
-                        Array.from(items).forEach(function (item) {
-                            item.style.display = '';
-                        });
+                        currentFilteredSpots = allSpots; // 重置为全部数据
+                        loadGalleryData(1);
                     }
+                
                     searchBtn.addEventListener('click', filterGallery);
                     searchInput.addEventListener('keydown', function (e) {
                         if (e.key === 'Enter') {
@@ -154,6 +223,9 @@
                         }
                     });
                     resetBtn.addEventListener('click', resetGallery);
+                
+                    // 暴露函数到全局，供分页按钮调用
+                    window.loadGalleryData = loadGalleryData;
                 });
             </script>
 
@@ -174,7 +246,7 @@
                 </div>
                 {% endfor %}
             </div>
-
+            
             <div id="description-modal" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
@@ -250,49 +322,6 @@
                     modal.style.display = 'none';
                 }
                 });
-                function loadGalleryData(page) {
-                    fetch(`/gallery_api?page=${page}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // 更新景点数据
-                            const galleryGrid = document.getElementById('gallery-grid');
-                            galleryGrid.innerHTML = '';
-                            
-                            data.grouped_spots.forEach(row => {
-                                const rowDiv = document.createElement('div');
-                                rowDiv.className = 'row';
-                                
-                                row.forEach(spot => {
-                                    const colDiv = document.createElement('div');
-                                    colDiv.className = 'col-sm-3';
-                                    colDiv.innerHTML = `
-                                        <div class="gallery-item">
-                                            <img src="${spot.src}" class="img-responsive modal-trigger" 
-                                                alt="" data-description="${spot.description}">
-                                            <div class="gallery-item-content">
-                                                <h3>${spot.title}</h3>
-                                            </div>
-                                        </div>
-                                    `;
-                                    rowDiv.appendChild(colDiv);
-                                });
-                                galleryGrid.appendChild(rowDiv);
-                            });
-                            
-                            // 更新当前页码状态
-                            document.querySelectorAll('.pagination a').forEach(link => {
-                                link.classList.remove('active');
-                                if (link.getAttribute('href').includes(`page=${data.current_page}`)) {
-                                    link.classList.add('active');
-                                }
-                            });
-                        });
-                }
-                
-                // 页面加载时获取第一页数据
-                document.addEventListener('DOMContentLoaded', function() {
-                    loadGalleryData(1);
-                });
             </script>
         </div>
     </section>
@@ -301,11 +330,10 @@
     <footer>
         <div class="social">
             <div class="social_icons">
-                <a class="social-icons__sep" href="#"><i class="fa fa-twitter"></i></a>
-                <a class="social-icons__sep" href="#"><i class="fa fa-facebook"></i></a>
-                <a class="social-icons__sep" href="#"><i class="fa fa-pinterest"></i></a>
-                <a class="social-icons__sep" href="#"><i class="fa fa-google-plus"></i></a>
-                <a href="#"><i class="fa fa-rss"></i></a>
+                <a class="social-icons__sep" href="https://wx.qq.com/"><i class="fa fa-weixin"></i></a>
+                <a class="social-icons__sep" href="https://im.qq.com/index/"><i class="fa fa-qq"></i></a>
+                <a class="social-icons__sep" href="https://www.weibo.com/"><i class="fa fa-weibo"></i></a>
+                <a href="https://github.com/"><i class="fa fa-github"></i></a>
             </div>
             <img alt="" src="static/example/footer_bg.jpg">
         </div>
