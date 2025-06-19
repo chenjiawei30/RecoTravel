@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js"> <!--<![endif]-->
 
 <head>
     <meta charset="utf-8">
 
-    <title>404</title>
+    <title>旅游景点挑选</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -20,8 +23,78 @@
     <link rel="stylesheet" href="static/css/main.css">
     <script src="static/js/vendor/modernizr-2.6.2.min.js"></script>
     <!--[if lt IE 9]>
-            <script src="static/js/vendor/respond.min.js"></script>
-        <![endif]-->
+    <script src="static/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+        .check {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            top: 0;
+            left: 0;
+            border: 1px solid #979797;
+        }
+
+        #count {
+            margin-left: 500px;
+        }
+
+        #count {
+            width: 150px;
+            height: 50px;
+            box-shadow: 0 1px 0 0 #f0f2fa;
+            background-color: #d5cc8f;
+            border-radius: 6px;
+            border: 1px solid #057fd0;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 6px 24px;
+            text-decoration: none;
+            text-shadow: 0 -1px 0 #5b6178;
+        }
+
+        #count:hover {
+            background: linear-gradient(to bottom, #019ad2 5%, #33bdef 100%);
+            background-color: #afd9ee;
+        }
+
+        #submit {
+            margin-left: 500px;
+        }
+
+        #submit {
+            width: 150px;
+            height: 50px;
+            box-shadow: 0 1px 0 0 #f0f7fa;
+            background: linear-gradient(to bottom, #33bdef 5%, #019ad2 100%);
+            background-color: #33bdef;
+            border-radius: 6px;
+            border: 1px solid #057fd0;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 6px 24px;
+            text-decoration: none;
+            text-shadow: 0 -1px 0 #5b6178;
+        }
+
+        #submit:hover {
+            background: linear-gradient(to bottom, #019ad2 5%, #33bdef 100%);
+            background-color: #019ad2;
+        }
+
+        #submit:active {
+            position: relative;
+            top: 1px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -73,6 +146,9 @@
                                 <a href="{% url 'login' %}" style="color: #333;">点击此处登录</a>
                             </li>
                             {% endif %}
+                            <!-- <li class="">
+                                <a href="./contact.html">联系</a>
+                            </li> -->
                         </ul>
                     </nav>
                 </div>
@@ -83,12 +159,32 @@
     <section id="middle" class="grey_section">
         <div class="container">
             <div class="row">
-                <div class="col-sm-12 text-center to_animate" data-animation="expandUp">
-                    <p class="not_found">404</p>
-                    <h2 class="block-header color">出现了一些问题</h2>
-                    <h5 class="grey">很抱歉<br>您的输入可能有一些问题</h5>
+                <div class="col-sm-12 text-center">
+                    <h2 class="block-header">美丽-北京</h2>
+                    <p>挑选你喜欢的景点</p>
                 </div>
             </div>
+
+            <form action="/reco" method="post">
+                <div class="row">
+                    <ul id="gallery-grid" class="gallery-grid col-sm-12">
+                        {% for spot in spots %}
+                        <li>
+                            <a href="#" data-largesrc="example/gallery/{{ spot.image }}" data-title="spn" data-description="data-description">
+                                <img src="{{ spot.src }}" alt="" />
+                            </a>
+                            <h3>{{ spot.title }}</h3>
+                            <p> <input class="check" type="checkbox" name="spot" value="{{ spot.title }}" />想去 </p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <p><input id="count" type="text" name="num" placeholder="输入景点个数" /></p>
+                <!-- submit   -->
+                <p><input id="submit" type="submit" value="提交" /></p>
+            </form>
+
         </div>
     </section>
 
@@ -96,12 +192,13 @@
     <footer>
         <div class="social">
             <div class="social_icons">
-                <a class="social-icons__sep" href="https://wx.qq.com/"><i class="fa fa-weixin"></i></a>
-                <a class="social-icons__sep" href="https://im.qq.com/index/"><i class="fa fa-qq"></i></a>
-                <a class="social-icons__sep" href="https://www.weibo.com/"><i class="fa fa-weibo"></i></a>
-                <a href="https://github.com/"><i class="fa fa-github"></i></a>
+                <a class="social-icons__sep" href="#"><i class="fa fa-twitter"></i></a>
+                <a class="social-icons__sep" href="#"><i class="fa fa-facebook"></i></a>
+                <a class="social-icons__sep" href="#"><i class="fa fa-pinterest"></i></a>
+                <a class="social-icons__sep" href="#"><i class="fa fa-google-plus"></i></a>
+                <a href="#"><i class="fa fa-rss"></i></a>
             </div>
-            <img alt="" src="example/footer_bg.jpg">
+            <img alt="" src="static/example/footer_bg.jpg">
         </div>
     </footer>
 

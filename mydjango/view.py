@@ -12,11 +12,13 @@ from django.conf import settings
 from dotenv import load_dotenv
 from django.views.decorators.csrf import csrf_exempt
 from .sam.seasonal_rec import seasonal_recommend
-from .models import Comment
+from .models import Comment, Post
 from django.utils import timezone
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib import messages
+from django.urls import reverse
 import re
+
 # 加载.env文件
 load_dotenv()
 
@@ -97,25 +99,24 @@ def recommend_view(request):
     return render(request, 'recommendation.html')
 
 def blog(request):
-    if request.method == 'POST':
-        if not request.user.is_authenticated:
-            return redirect(f'/login/?{REDIRECT_FIELD_NAME}=blog.html')
-        content = request.POST.get('content')
-        if content:
-            Comment.objects.create(user=request.user, username=request.user.username, content=content, created_at=timezone.now())
-    comments = Comment.objects.order_by('-created_at')
-    return render(request, 'blog.html', {'comments': comments})
+    posts = Post.objects.all().order_by('-created_at')
+    for post in posts:
+        post.comment_count = post.comments.count()
+    return render(request, 'blog.html', {'posts': posts})
 
 
 def blog_single(request):
+    post_id = request.GET.get('post_id')
+    post = get_object_or_404(Post, id=post_id)
     if request.method == 'POST':
         if not request.user.is_authenticated:
-            return redirect(f'/login/?next=blog-single.html')
+            return redirect(f'/login/?next=blog-single.html?post_id={post_id}')
         content = request.POST.get('content')
         if content:
-            Comment.objects.create(user=request.user, username=request.user.username, content=content, created_at=timezone.now())
-    comments = Comment.objects.order_by('-created_at')
-    return render(request, 'blog-single.html', {'comments': comments})
+            Comment.objects.create(post=post, user=request.user, username=request.user.username, content=content, created_at=timezone.now())
+    comments = post.comments.order_by('-created_at')
+    comment_count = comments.count()
+    return render(request, 'blog-single.html', {'post': post, 'comments': comments, 'comment_count': comment_count})
 
 
 def contact(request):
@@ -160,6 +161,10 @@ def register_view(request):
         email = request.POST.get('email')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
+
+        # 用户名只能为英文且不超过6个字符
+        if not username.isalpha() or not username.isascii() or len(username) > 6:
+            return render(request, 'register.html', {'error_message': '用户名只能为英文且不超过6个字符'})
 
         # 验证密码是否匹配
         if password1 != password2:
@@ -285,8 +290,31 @@ def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user != comment.user:
         messages.error(request, '你只能删除自己的评论！')
-        return redirect('blog_single')
+        return redirect(f"{reverse('blog_single')}?post_id={comment.post.id}")
     if request.method == 'POST':
         comment.delete()
         messages.success(request, '评论已删除！')
+    return redirect(f"{reverse('blog_single')}?post_id={comment.post.id}")
+
+@login_required
+def post_create(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        if title and content:
+            post = Post.objects.create(title=title, content=content, author=request.user, image=image)
+            return redirect('blog')
+    return render(request, 'post_create.html')
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user != post.author:
+        messages.error(request, '你只能删除自己的帖子！')
+        return redirect('blog')
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, '帖子已删除！')
+        return redirect('blog')
     return redirect('blog_single')

@@ -53,17 +53,9 @@
 							<li class="">
 								<a href="./route_design.html">景点路线规划</a>
 							</li>
-							<li class="dropdown active">
-								<a href="./blog.html">博客</a>
-								<ul class="dropdown-menu">
-									<li class="">
-										<a href="./blog.html">博客</a>
-									</li>
-									<li class="">
-										<a href="./blog-single.html">博客文章</a>
-									</li>
-								</ul>
-							</li>
+							<li class="">
+                                <a href="./blog.html">博客</a>
+                            </li>
 							<li class="">
 								<a href="./about.html">关于</a>
 							</li>
@@ -98,149 +90,64 @@
 				<div class="col-sm-9">
 					<div class="content-area" id="primary">
 						<div role="main" class="site-content" id="content">
-							<article class="post format-standard">
-								<header class="entry-header">
-									<div class="entry-thumbnail">
-										<img alt="" src="static/example/blog-post.jpg">
-									</div>
-									<h2 class="entry-title">
-										<a href="./blog-single.html" rel="bookmark">写下你的旅行</a>
-									</h2>
-									<div class="entry-meta">
-										By
-										<span class="author vcard">
-											<a rel="author" href="#" class="url fn n">黄晶晶</a>
-										</span>
-										<span class="categories-links">
-											In
-											<a rel="category" href="#">故宫</a>,
-											<a rel="category" href="#">徒步</a>
-										</span>
-										<span class="date">
-											Posted
-											<time datetime="2020-08-08T15:05:23+00:00" class="entry-date">8月 8,
-												2020</time>
-										</span>
-										<span class="comments-link">
-											<a href="#">5 comments</a>
-										</span>
-									</div>
-									<!-- .entry-meta -->
-								</header>
-								<!-- .entry-header -->
-
-								<div class="entry-content">
-									<p> 游历了故宫，美好的一天</p>
-
+							<div class="container" style="margin-top:40px;">
+								<div class="d-flex justify-content-between align-items-center mb-3" style="position: relative;">
+									<h2>博客列表</h2>
+									{% if user.is_authenticated %}
+									<a href="{% url 'post_create' %}" class="btn btn-success btn-lg shadow" style="position: absolute; right: 0; top: 0; z-index: 10; border-radius: 30px; padding: 10px 28px; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(40,167,69,0.15); color: #fff;">
+										<i class="fa fa-pencil" style="margin-right: 6px;"></i> 发新帖
+									</a>
+									{% endif %}
 								</div>
-								<!-- .entry-content -->
-								<div class="entry-tags">
-									<span class="tags-links">
-										<a rel="tag" href="#">故宫</a>,
-										<a rel="tag" href="#">徒步</a>
-									</span>
-								</div>
-								<!-- .entry-tags -->
-							</article>
-							<!-- .post -->
-
-							<article class="post format-small-image">
 								<div class="row">
-									<div class="entry-thumbnail col-sm-5">
-										<img alt="" src="static/example/blog-spot.jpg">
-									</div>
-									<div class="col-sm-7">
-										<header class="entry-header">
-											<h2 class="entry-title">
-												<a href="./blog-single.html" rel="bookmark">晒出你的图片</a>
-											</h2>
-											<div class="entry-meta">
-												By
-												<span class="author vcard">
-													<a rel="author" href="#" class="url fn n">骆玲巧</a>
-												</span>
-												<span class="categories-links">
-													In
-													<a rel="category" href="#">北京西山国家森林公园</a>,
-													<a rel="category" href="#">驾车</a>
-												</span>
-												<span class="date">
-													Posted
-													<time datetime="2019-05-08T15:05:23+00:00" class="entry-date">五月 8,
-														2019</time>
-												</span>
-												<span class="comments-link">
-													<a href="#">5 comments</a>
-												</span>
+									{% for post in posts %}
+									<div class="col-md-4 mb-4">
+										<div class="card h-100">
+											{% if post.image %}
+											<img src="{{ post.image.url }}" class="card-img-top" alt="封面">
+											{% else %}
+											<img src="/static/example/blog-post.jpg" class="card-img-top" alt="默认封面">
+											{% endif %}
+											<div class="card-body">
+												<h5 class="card-title">
+													<a href="/blog-single.html?post_id={{ post.id }}" style="text-decoration: none;">
+														<h2 style="
+														  font-weight: bold;
+														  color: #007BFF;
+														  transition: color 0.3s ease;
+														  cursor: pointer;
+														"
+														onmouseover="this.style.color='#0056b3'"
+														onmouseout="this.style.color='#007BFF'"
+														>
+														  {{ post|default_if_none:"None" }}
+														</h2>
+													  </a>
+													  
+												</h5>
+												<p class="card-text">{{ post.content|truncatechars:800 }}</p>
 											</div>
-											<!-- .entry-meta -->
-										</header>
-										<!-- .entry-header -->
-
-										<div class="entry-content">
-											<p>在森林公园中穿行，呼吸新鲜的空气，真是愉悦。</p>
+											<div
+												class="card-footer text-muted d-flex justify-content-between align-items-center">
+												<span>作者：{{ post.author.username }}</span>
+												<span>{{ post.created_at|date:'Y-m-d H:i' }}</span>
+											</div>
+											<div class="d-flex justify-content-between align-items-center mt-2">
+												<span>评论：{{ post.comment_count }}</span>
+												{% if user.is_authenticated and post.author == user %}
+												<form method="post" action="{% url 'delete_post' post.id %}" style="display:inline; margin-left: 12px;">
+													{% csrf_token %}
+													<button type="submit" class="btn btn-danger btn-sm" style="margin-left: 8px; border-radius: 20px; padding: 4px 18px; font-size: 0.98rem; transition: background 0.2s; box-shadow: 0 2px 8px rgba(220,53,69,0.08);" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'" onclick="return confirm('确定要删除这篇帖子吗？');">
+														<i class="fa fa-trash"></i> 删除
+													</button>
+												</form>
+												{% endif %}
+											</div>
 										</div>
-										<!-- .entry-content -->
-										<div class="entry-tags">
-											<span class="tags-links">
-												<a rel="tag" href="#">西山国家森林公园</a>,
-												<a rel="tag" href="#">驾车</a>
-											</span>
-										</div>
-										<!-- .entry-tags -->
 									</div>
+									{% endfor %}
 								</div>
-							</article>
-
-							</article>
-							<!-- .post -->
-							<article class="">
-								<header class="entry-header">
-									<div class="entry-thumbnail">
-
-									</div>
-									<h2 class="entry-title">
-										<a href="./blog-single.html" rel="bookmark">展示你的视频</a>
-									</h2>
-									<div class="entry-meta">
-										By
-										<span class="author vcard">
-											<a rel="author" href="#" class="url fn n">陈瑾</a>
-										</span>
-										<span class="categories-links">
-											In
-											<a rel="category" href="#">八达岭长城</a>,
-											<a rel="category" href="#">徒步</a>
-										</span>
-										<span class="date">
-											Posted
-											<time datetime="2019-08-08T15:05:23+00:00" class="entry-date">八月 8,
-												2013</time>
-										</span>
-										<span class="comments-link">
-											<a href="#">5 comments</a>
-										</span>
-									</div>
-									<!-- .entry-meta -->
-								</header>
-								<!-- .entry-header -->
-
-								<div class="entry-content">
-									<p> 不登长城非好汉，记八达岭长城一日游。</p>
-
-								</div>
-								<!-- .entry-content -->
-								<div class="entry-tags">
-									<span class="tags-links">
-										<a rel="tag" href="#">八达岭长城</a>,
-										<a rel="tag" href="#">徒步</a>
-									</span>
-								</div>
-								<!-- .entry-tags -->
-
-							</article>
-							<!-- .post -->
-
+							</div>
 						</div>
 						<!-- #content -->
 					</div>
@@ -249,19 +156,6 @@
 
 				<!-- Sidebar -->
 				<aside class="col-sm-3">
-
-
-
-					<div class="block widget_tag_cloud">
-						<h3>标签</h3>
-						<div class="tagcloud">
-							<a href="#" class="tag-link">北京</a>
-							<a href="#" class="tag-link">旅行</a>
-							<a href="#" class="tag-link">分享</a>
-							<a href="#" class="tag-link">图片</a>
-							<a href="#" class="tag-link">视频</a>
-						</div>
-					</div>
 
 
 
@@ -288,7 +182,7 @@
 			<div class="row">
 
 				<div class="col-sm-12 text-center">
-					&copy; Copyright 2025 - Travel Planning
+					&copy; UCAS 2025 - Travel Planning
 				</div>
 			</div>
 
@@ -332,6 +226,16 @@
 	<script src="static/js/plugins.js"></script>
 	<script src="static/js/main.js"></script>
 
+<style>
+.btn-success.btn-lg.shadow {
+    color: #fff !important;
+}
+.btn-success.btn-lg.shadow:hover, .btn-success.btn-lg.shadow:focus {
+    color: #fff !important;
+    background: #218838;
+    text-decoration: none;
+}
+</style>
 
 </body>
 
