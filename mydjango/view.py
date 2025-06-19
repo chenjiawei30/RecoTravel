@@ -56,29 +56,7 @@ def seasonal_spot(request):
 
     return render(request, "seasonal.html", ctx)
 
-def gallery(request):
-    page = int(request.GET.get('page', 1))
-    items_per_page = 12
-    
-    with open('static/spots.json', 'r', encoding='utf-8') as f:
-        all_spots = json.load(f)
-    
-    total_items = len(all_spots)
-    total_pages = (total_items + items_per_page - 1) // items_per_page
-    page_range = range(1, total_pages + 1)  # 添加页码范围
-    
-    start_index = (page - 1) * items_per_page
-    end_index = start_index + items_per_page
-    paginated_spots = all_spots[start_index:end_index]
 
-    grouped_spots = [paginated_spots[i:i+4] for i in range(0, len(paginated_spots), 4)]
-    
-    return render(request, "gallery.html", {
-        'grouped_spots': grouped_spots,
-        'total_pages': total_pages,
-        'current_page': page,
-        'page_range': page_range  # 传递页码范围
-    })
 
 
 def login_view(request):
