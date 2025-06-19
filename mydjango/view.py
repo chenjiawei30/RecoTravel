@@ -302,7 +302,9 @@ def post_create(request):
         title = request.POST.get('title')
         content = request.POST.get('content')
         image = request.FILES.get('image')
-        if title and content:
+        if not image:
+            return render(request, 'post_create.html', {'error_message': '请上传封面图片'})
+        if title and content and image:
             post = Post.objects.create(title=title, content=content, author=request.user, image=image)
             return redirect('blog')
     return render(request, 'post_create.html')
